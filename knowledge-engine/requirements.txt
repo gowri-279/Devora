@@ -1,5 +1,8 @@
 pymongo 
 sentence-transformers 
-langchain 
 pypdf 
 python-dotenv
+langchain-text-splitters
+python-docx
+pydantic
+python-multipart
