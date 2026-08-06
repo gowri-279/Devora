@@ -31,7 +31,6 @@ def infer_scope(filename: str) -> str:
 
     team_docs = {
         "team_foundations.md",
-        "calcom_CONTRIBUTING.md"
     }
 
     return "team" if filename in team_docs else "project"
