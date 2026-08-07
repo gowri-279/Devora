@@ -1,9 +1,14 @@
 import json
 from pathlib import Path
+from pydantic import BaseModel
 
-from document_loader import load_documents
+from app.document_loader import load_documents
 
 DATA_DIR = Path(__file__).parent.parent / "data"
+
+
+class LearningPathRequest(BaseModel):
+    project_id: str
 
 
 def build_learning_path(documents):
@@ -20,51 +25,58 @@ def build_learning_path(documents):
         name = Path(source).name.lower()
 
         if "team_foundations" in name:
-            grouped[1]["sources"].append(source)
+            grouped[1]["sources"].append(Path(source).name)
 
         elif "readme" in name:
-            grouped[2]["sources"].append(source)
+            grouped[2]["sources"].append(Path(source).name)
 
         elif "local_setup" in name or "developing_locally" in name:
-            grouped[3]["sources"].append(source)
+            grouped[3]["sources"].append(Path(source).name)
 
         elif "contributing" in name:
-            grouped[4]["sources"].append(source)
+            grouped[4]["sources"].append(Path(source).name)
 
         elif "api" in name:
-            grouped[5]["sources"].append(source)
+            grouped[5]["sources"].append(Path(source).name)
 
         elif "refund" in name or "bugs" in name:
-            grouped[6]["sources"].append(source)
+            grouped[6]["sources"].append(Path(source).name)
 
     modules = []
 
     for order, item in grouped.items():
         if item["sources"]:
             modules.append({
+                "step": order,
                 "title": item["title"],
-                "sources": item["sources"],
-                "order": order
+                "sources": item["sources"]
             })
 
     return modules
 
 
-if __name__ == "__main__":
-    files = [str(p) for p in DATA_DIR.iterdir()]
+def generate_learning_path(project_id: str):
+    files = [str(p) for p in DATA_DIR.glob("*.md")]
     docs = load_documents(files)
 
-    path = build_learning_path(docs)
+    return {
+        "project_id": project_id,
+        "learning_path": build_learning_path(docs)
+    }
+
+
+if __name__ == "__main__":
+    result = generate_learning_path("refund-service")
 
     output_path = DATA_DIR / "learning_path.json"
 
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(path, f, indent=2)
+        json.dump(result, f, indent=2)
 
-    print("Generated personalized learning path\\n")
+    print("Generated learning path\\n")
 
-    for item in path:
-        print(f"Module {item['order']}: {item['title']}")
+    for item in result["learning_path"]:
+        print(f"Step {item['step']}: {item['title']}")
 
         for src in item["sources"]:
             print(f"   - {src}")

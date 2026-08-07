@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from app.search import search
 from fastapi.middleware.cors import CORSMiddleware
 from app.confidence import get_confidence
+from app.ingest_api import IngestRequest, ingest_files
+from app.generate_learning_path import LearningPathRequest, generate_learning_path
 
 app = FastAPI(title="DEVORA Knowledge Engine")
 app.add_middleware(
@@ -55,13 +57,18 @@ def search_endpoint(req: SearchRequest):
     for r in results:
         confidence = get_confidence(r["score"])
 
-        item = {
-            "source_file": r["source_file"],
-            "scope": r["scope"],
-            "score": round(r["score"], 4),
-            "confidence": confidence,
-            "section_title": r["section_title"],
-            "context": r["context"]
+        item = { 
+            "source_file": r["source_file"], 
+            "scope": r["scope"], 
+            "score": round(r["score"], 4), 
+            "confidence": confidence, 
+            "section_title": r["section_title"], 
+            "reference": f"{r['source_file']} → {r['section_title']}", 
+            "answer_preview": ( 
+                r["context"][:180] + 
+                ("..." if len(r["context"]) > 180 else "") 
+            ), 
+            "context": r["context"] 
         }
 
         if confidence == "low":
@@ -76,3 +83,11 @@ def search_endpoint(req: SearchRequest):
         "query": req.query,
         "results": enriched
     }
+
+@app.post("/ingest") 
+def ingest_endpoint(req: IngestRequest): 
+    return ingest_files(req)
+
+@app.post("/learning-path") 
+def learning_path_endpoint(req: LearningPathRequest): 
+    return generate_learning_path(req.project_id)
