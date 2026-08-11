@@ -18,40 +18,47 @@ def build_learning_path(source_files: list):
     regardless of project_id, so every project returned the identical
     learning path.
     """
-    grouped = {
-        1: {"title": "Team Foundations", "sources": []},
-        2: {"title": "Project Overview", "sources": []},
-        3: {"title": "Run the Project Locally", "sources": []},
-        4: {"title": "Contribution Workflow", "sources": []},
-        5: {"title": "API Understanding", "sources": []},
-        6: {"title": "Debugging & KT", "sources": []},
-    }
-
-    for name in source_files:
-        lower = name.lower()
-
-        if "team_foundations" in lower:
-            grouped[1]["sources"].append(name)
-        elif "readme" in lower:
-            grouped[2]["sources"].append(name)
-        elif "local_setup" in lower or "developing_locally" in lower:
-            grouped[3]["sources"].append(name)
-        elif "contributing" in lower:
-            grouped[4]["sources"].append(name)
-        elif "api" in lower:
-            grouped[5]["sources"].append(name)
-        elif "refund" in lower or "bugs" in lower:
-            grouped[6]["sources"].append(name)
-
-    modules = []
-    for order, item in grouped.items():
-        if item["sources"]:
-            modules.append({
-                "step": order,
-                "title": item["title"],
-                "sources": item["sources"],
-            })
-
+    modules = [] 
+    PRIORITY = [ 
+        (["team_foundations"], "Team Foundations", 
+         "Understand collaboration workflow and engineering standards."), 
+        (["readme"], "Project Overview", 
+          "Understand the project purpose, architecture, and key components."), 
+        (["architecture"], "Architecture", 
+         "Understand the system architecture and major components."), 
+        (["setup", "developing_locally"], 
+          "Local Setup", "Set up the development environment and run the project locally."), 
+        (["api"], "API Integration", "Explore APIs, contracts and integration points."), 
+        (["refund"], "Refund Flow", "Learn the refund lifecycle and related business logic."), 
+        (["bug"], "Debugging & KT", "Review common issues and troubleshooting guidance."), 
+    ]
+    used = set()
+    step = 1 
+    for keyword, title, description in PRIORITY: 
+        matched = [
+            f for f in source_files 
+            if any(k in f.lower() for k in keyword) and f not in used
+        ] 
+        if matched:
+            modules.append({ 
+                "step": step, 
+                "title": title, 
+                "description": description, 
+                "sources": matched 
+            }) 
+            used.update(matched) 
+            step += 1 
+    for f in source_files: 
+        if f in used: 
+            continue 
+        name = f.rsplit(".", 1)[0].replace("_", " ").replace("-", " ").title() 
+        modules.append({ 
+            "step": step, 
+            "title": name, 
+            "description": "Learn the concepts and implementation details covered in this document.", 
+            "sources": [f] 
+        }) 
+        step += 1 
     return modules
 
 

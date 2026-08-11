@@ -45,7 +45,7 @@ def reconstruct_section(source_file: str, section_id: str):
     return "\n\n".join(cleaned_parts)
 
 
-def search(query: str, project_id: str = "refund-service", top_k: int = 5):
+def search(query: str, project_id: str = "refund-service", top_k: int = 3):
     query_vector = embed_query(query)
 
     pipeline = [
@@ -54,7 +54,7 @@ def search(query: str, project_id: str = "refund-service", top_k: int = 5):
                 "index": INDEX_NAME,
                 "path": "embedding",
                 "queryVector": query_vector,
-                "numCandidates": 50,
+                "numCandidates": 100,
                 "limit": top_k,
                 "filter": {
                     "$and": [

@@ -61,18 +61,20 @@ def search_endpoint(req: SearchRequest):
     for r in results:
         confidence = get_confidence(r["score"])
 
-        item = {
-            "source_file": r["source_file"],
-            "scope": r["scope"],
-            "score": round(r["score"], 4),
-            "confidence": confidence,
-            "section_title": r["section_title"],
-            "reference": f"{r['source_file']} → {r['section_title']}",
-            "answer_preview": (
-                r["context"][:180] +
-                ("..." if len(r["context"]) > 180 else "")
-            ),
-            "context": r["context"]
+        item = { 
+            "source_file": r["source_file"], 
+            "scope": r["scope"], 
+            "source_type": "team" if r["scope"] == "team" else "project", 
+            "score": round(r["score"], 4), 
+            "confidence": confidence, 
+            "section_title": r["section_title"], 
+            "summary": r["section_title"], 
+            "reference": f"{r['source_file']} → {r['section_title']}", 
+            "answer_preview": ( 
+                r["context"][:180] + 
+                ("..." if len(r["context"]) > 180 else "") 
+                ), 
+            "context": r["context"] 
         }
 
         if confidence == "low":
