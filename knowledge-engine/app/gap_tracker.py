@@ -101,10 +101,13 @@ def check_and_record_gap(
             {
                 "$inc": {"occurrence_count": 1},
                 "$set": {"last_seen_at": now, "top_score": top_score},
-                "$push": {"example_queries": query},  # keeps a few paraphrase examples for Admin to read
+                "$addToSet": {"example_queries": query}  # keeps a few paraphrase examples for Admin to read
             },
         )
-        updated = collection.find_one({"gap_id": match["gap_id"]}, {"_id": 0})
+        updated = collection.find_one( 
+            {"gap_id": match["gap_id"]}, 
+            {"_id": 0, "embedding": 0} 
+        ) 
         return updated
 
     gap = {

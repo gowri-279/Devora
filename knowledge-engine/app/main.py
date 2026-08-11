@@ -9,13 +9,13 @@ It uses MongoDB Atlas Vector Search and project-aware retrieval.
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-
 from app.search import search
 from app.confidence import get_confidence
 from app.ingest_api import IngestRequest, ingest_files
 from app.generate_learning_path import LearningPathRequest, generate_learning_path
 from app.projects import get_active_project, list_projects
 from app.db import get_chunks_collection
+from app.gap_tracker import ( check_and_record_gap, list_open_gaps, resolve_gap, )
 
 app = FastAPI(title="DEVORA Knowledge Engine")
 app.add_middleware(
@@ -82,10 +82,21 @@ def search_endpoint(req: SearchRequest):
 
         enriched.append(item)
 
-    return {
-        "project_id": req.project_id,
-        "query": req.query,
-        "results": enriched
+    top_result = enriched[0] if enriched else None 
+    knowledge_gap = None 
+    if top_result: 
+        knowledge_gap = check_and_record_gap( 
+            query=req.query, 
+            project_id=req.project_id, 
+            top_confidence=top_result["confidence"], 
+            top_score=top_result["score"] 
+        )
+
+    return { 
+        "project_id": req.project_id, 
+        "query": req.query, 
+        "results": enriched, 
+        "knowledge_gap": knowledge_gap 
     }
 
 
@@ -97,3 +108,20 @@ def ingest_endpoint(req: IngestRequest):
 @app.post("/learning-path")
 def learning_path_endpoint(req: LearningPathRequest):
     return generate_learning_path(req.project_id, repo_metadata=req.repo_metadata)
+
+@app.get("/gaps") 
+def gaps_endpoint(project_id: str | None = None, min_occurrences: int = 1): 
+    return { 
+        "gaps": list_open_gaps( 
+            project_id=project_id, 
+            min_occurrences=min_occurrences, 
+        ) 
+    } 
+
+@app.post("/gaps/{gap_id}/resolve") 
+def resolve_gap_endpoint(gap_id: str): 
+    resolved = resolve_gap(gap_id) 
+    return { 
+        "gap_id": gap_id, 
+        "resolved": resolved 
+    }
