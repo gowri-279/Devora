@@ -1,26 +1,13 @@
 from pydantic import BaseModel
-from app.document_loader import load_documents
-from app.chunk_documents import chunk_documents
-from app.store_vectors import add_chunks
+from typing import List
+from app.ingest_core import run_ingest
 
 
 class IngestRequest(BaseModel):
     project_id: str
-    file_paths: list[str]
+    file_paths: List[str]
+    is_new_project: bool = True  # False if just adding docs to the currently active project
 
 
 def ingest_files(req: IngestRequest):
-    documents = load_documents(req.file_paths)
-
-    chunks = chunk_documents(documents)
-
-    for c in chunks:
-        c["project_id"] = req.project_id
-
-    add_chunks(chunks)
-
-    return {
-        "project_id": req.project_id,
-        "documents_processed": len(documents),
-        "chunks_created": len(chunks)
-    }
+    return run_ingest(req.project_id, req.file_paths, is_new_project=req.is_new_project)

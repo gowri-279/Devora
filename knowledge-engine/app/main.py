@@ -1,16 +1,21 @@
-""" DEVORA Knowledge Engine service. 
-Run: uvicorn app.main:app --reload --port 8001 
-This service exposes semantic retrieval APIs for the backend and IBM Bob. It uses MongoDB 
-Atlas Vector Search and project-aware retrieval. """
+"""
+DEVORA Knowledge Engine service.
+Run: uvicorn app.main:app --reload --port 8001
 
+This service exposes semantic retrieval APIs for the backend and IBM Bob.
+It uses MongoDB Atlas Vector Search and project-aware retrieval.
+"""
 
 from fastapi import FastAPI
 from pydantic import BaseModel
-from app.search import search
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.search import search
 from app.confidence import get_confidence
 from app.ingest_api import IngestRequest, ingest_files
 from app.generate_learning_path import LearningPathRequest, generate_learning_path
+from app.projects import get_active_project, list_projects
+from app.db import get_chunks_collection
 
 app = FastAPI(title="DEVORA Knowledge Engine")
 app.add_middleware(
@@ -31,21 +36,21 @@ class SearchRequest(BaseModel):
 def health():
     return {"status": "ok"}
 
+
 @app.get("/stats")
 def stats():
-    from pymongo import MongoClient
-    from dotenv import load_dotenv
-    import os
+    return {"total_chunks": get_chunks_collection().count_documents({})}
 
-    load_dotenv()
 
-    client = MongoClient(os.getenv("MONGODB_URI"))
-    db = client[os.getenv("MONGODB_DATABASE")]
-    collection = db[os.getenv("MONGODB_COLLECTION")]
+@app.get("/projects")
+def projects_endpoint(include_archived: bool = True):
+    return {"projects": list_projects(include_archived=include_archived)}
 
-    return {
-        "total_chunks": collection.count_documents({})
-    }
+
+@app.get("/projects/active")
+def active_project_endpoint():
+    active = get_active_project()
+    return {"active_project": active}
 
 
 @app.post("/search")
@@ -53,27 +58,26 @@ def search_endpoint(req: SearchRequest):
     results = search(req.query, project_id=req.project_id)
 
     enriched = []
-
     for r in results:
         confidence = get_confidence(r["score"])
 
-        item = { 
-            "source_file": r["source_file"], 
-            "scope": r["scope"], 
-            "score": round(r["score"], 4), 
-            "confidence": confidence, 
-            "section_title": r["section_title"], 
-            "reference": f"{r['source_file']} → {r['section_title']}", 
-            "answer_preview": ( 
-                r["context"][:180] + 
-                ("..." if len(r["context"]) > 180 else "") 
-            ), 
-            "context": r["context"] 
+        item = {
+            "source_file": r["source_file"],
+            "scope": r["scope"],
+            "score": round(r["score"], 4),
+            "confidence": confidence,
+            "section_title": r["section_title"],
+            "reference": f"{r['source_file']} → {r['section_title']}",
+            "answer_preview": (
+                r["context"][:180] +
+                ("..." if len(r["context"]) > 180 else "")
+            ),
+            "context": r["context"]
         }
 
         if confidence == "low":
             item["warning"] = (
-                "I’m not fully sure. The uploaded documentation may not fully cover this question."
+                "I'm not fully sure. The uploaded documentation may not fully cover this question."
             )
 
         enriched.append(item)
@@ -84,10 +88,12 @@ def search_endpoint(req: SearchRequest):
         "results": enriched
     }
 
-@app.post("/ingest") 
-def ingest_endpoint(req: IngestRequest): 
+
+@app.post("/ingest")
+def ingest_endpoint(req: IngestRequest):
     return ingest_files(req)
 
-@app.post("/learning-path") 
-def learning_path_endpoint(req: LearningPathRequest): 
-    return generate_learning_path(req.project_id)
+
+@app.post("/learning-path")
+def learning_path_endpoint(req: LearningPathRequest):
+    return generate_learning_path(req.project_id, repo_metadata=req.repo_metadata)

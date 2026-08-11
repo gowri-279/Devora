@@ -6,3 +6,5 @@ langchain-text-splitters
 python-docx
 pydantic
 python-multipart
+fastapi
+uvicorn[standard]

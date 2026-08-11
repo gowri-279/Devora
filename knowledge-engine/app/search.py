@@ -1,14 +1,12 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from app.embeddings import embed_query
+from app.db import get_chunks_collection
 import os
 
 load_dotenv()
 
-client = MongoClient(os.getenv("MONGODB_URI"))
-
-db = client[os.getenv("MONGODB_DATABASE")]
-collection = db[os.getenv("MONGODB_COLLECTION")]
+collection = get_chunks_collection()
 
 INDEX_NAME = "vector_index"
 
@@ -35,16 +33,12 @@ def reconstruct_section(source_file: str, section_id: str):
     cleaned_parts = []
 
     for d in docs:
-        # Split by blank lines to compare logical paragraphs
         paragraphs = [p.strip() for p in d["text"].split("\n\n") if p.strip()]
-
         unique_paragraphs = []
-
         for p in paragraphs:
             if p not in seen:
                 seen.add(p)
                 unique_paragraphs.append(p)
-
         if unique_paragraphs:
             cleaned_parts.append("\n\n".join(unique_paragraphs))
 
@@ -63,12 +57,22 @@ def search(query: str, project_id: str = "refund-service", top_k: int = 5):
                 "numCandidates": 50,
                 "limit": top_k,
                 "filter": {
-                    "$or": [
-                        {"project_id": project_id},
+                    "$and": [
+                        # Excludes archived-project chunks from retrieval —
+                        # required for multi-project archiving (projects.py)
+                        # to actually mean anything at query time. Requires
+                        # "status" to be added as a filter field in your
+                        # Atlas Search index (see README).
+                        {"status": {"$ne": "archived"}},
                         {
-                            "$and": [
-                                {"scope": "team"},
-                                {"project_id": None}
+                            "$or": [
+                                {"project_id": project_id},
+                                {
+                                    "$and": [
+                                        {"scope": "team"},
+                                        {"project_id": None}
+                                    ]
+                                }
                             ]
                         }
                     ]
@@ -104,7 +108,6 @@ def search(query: str, project_id: str = "refund-service", top_k: int = 5):
         key = (r["source_file"], context)
         if key in seen:
             continue
-
         seen.add(key)
 
         final_results.append({
@@ -129,7 +132,5 @@ if __name__ == "__main__":
         print(f"Result {i} | score={r['score']:.4f}")
         print(f"Source: {r['source_file']} ({r['scope']})")
         print(f"Section: {r['section_title']}\n")
-
         print(r["context"].strip())
-
         print("\n" + "-" * 80 + "\n")

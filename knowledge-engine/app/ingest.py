@@ -1,35 +1,17 @@
 from pathlib import Path
-
-from app.document_loader import load_documents
-from app.chunk_documents import chunk_documents
-from app.store_vectors import add_chunks
+from app.ingest_core import run_ingest
 
 
-def ingest(project_id: str = "refund-service"):
+def ingest(project_id: str = "refund-service", is_new_project: bool = True):
     print(f"Starting ingest for project: {project_id}\n")
 
-    # 1. Load documents
     files = [str(p) for p in Path("data").glob("*.md")]
-    documents = load_documents(files)
 
-    print(f"Loaded {len(documents)} documents")
+    result = run_ingest(project_id, files, is_new_project=is_new_project)
 
-    # 2. Chunk documents
-    chunks = chunk_documents(documents)
-
-    print(f"Created {len(chunks)} chunks")
-
-    # 3. Attach project_id
-    for chunk in chunks:
-        if chunk["scope"] == "project":
-            chunk["project_id"] = project_id
-        else:
-            chunk["project_id"] = None
-
-    # 4. Store (embeddings are generated inside add_chunks)
-    inserted = add_chunks(chunks)
-
-    print(f"Stored {inserted} vector records")
+    print(f"Loaded {result['documents_processed']} documents")
+    print(f"Created {result['chunks_created']} chunks")
+    print(f"Stored {result['chunks_inserted']} vector records")
     print("\nIngest complete!")
 
 
