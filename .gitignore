@@ -1,0 +1,7 @@
+venv/
+repository-parser/venv/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+repository_metadata.json
