@@ -1,17 +1,40 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 
-router = APIRouter(tags=["Authentication"])
+router = APIRouter()
+
+
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: str = "developer"
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 
 @router.post("/register")
-def register():
+def register(data: RegisterRequest):
     return {
-        "message": "Register endpoint is working!"
+        "message": "Registration successful",
+        "access_token": f"mock-token-{data.email}",
+        "user": {
+            "name": data.name,
+            "email": data.email,
+            "role": data.role
+        }
     }
 
 
 @router.post("/login")
-def login():
+def login(data: LoginRequest):
     return {
-        "message": "Login endpoint is working!"
+        "message": "Login successful",
+        "access_token": f"mock-token-{data.email}",
+        "user": {
+            "email": data.email
+        }
     }
