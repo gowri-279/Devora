@@ -3,6 +3,11 @@ from app.services.ibm_bob_client import IBMBobClient
 
 
 def generate_answer(request: GenerateAnswerRequest) -> GenerateAnswerResponse:
+    if not request.contexts:
+        raise ValueError(
+            "No grounded contexts were provided by the Knowledge Engine."
+        )
+
     client = IBMBobClient()
 
     prompt = build_prompt(request)

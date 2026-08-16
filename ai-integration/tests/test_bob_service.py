@@ -1,5 +1,5 @@
 from app.models.schemas import Context, GenerateAnswerRequest
-from app.services.bob_service import build_prompt
+from app.services.bob_service import build_prompt, generate_answer
 
 
 def test_build_prompt():
@@ -12,14 +12,19 @@ def test_build_prompt():
                 section_title="Reconciliation",
                 confidence="high",
                 score=0.92,
-                context="The refund reconciliation process retries failed operations."
+                context=(
+                    "The refund reconciliation process retries "
+                    "failed operations."
+                )
             ),
             Context(
                 source_file="API.md",
                 section_title="Refund API",
                 confidence="medium",
                 score=0.81,
-                context="The refund API exposes refund retry operations."
+                context=(
+                    "The refund API exposes refund retry operations."
+                )
             )
         ]
     )
@@ -31,3 +36,19 @@ def test_build_prompt():
     assert "Reconciliation" in prompt
     assert "API.md" in prompt
     assert "refund-service" in prompt
+
+
+def test_build_prompt_rejects_empty_contexts():
+    request = GenerateAnswerRequest(
+        question="How does the refund reconciliation process work?",
+        project_id="refund-service",
+        contexts=[]
+    )
+
+    try:
+        generate_answer(request)
+        assert False, "Expected ValueError for empty contexts"
+    except ValueError as error:
+        assert str(error) == (
+            "No grounded contexts were provided by the Knowledge Engine."
+        )
