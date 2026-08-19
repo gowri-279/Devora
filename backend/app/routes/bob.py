@@ -1,9 +1,13 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 import requests
+import os
 
 router = APIRouter(tags=["Bob"])
 
+KNOWLEDGE_ENGINE_URL = os.getenv("KNOWLEDGE_ENGINE_URL")
+
+print(">>> KNOWLEDGE ENGINE URL:", KNOWLEDGE_ENGINE_URL)
 
 class BobRequest(BaseModel):
     question: str
@@ -16,7 +20,7 @@ def ask_bob(request: BobRequest):
     # Step 1: Ask the Knowledge Engine for relevant context
     try:
         response = requests.post(
-            "http://localhost:8001/search",
+            f"{KNOWLEDGE_ENGINE_URL}/search",
             json={
                 "project_id": request.project_id,
                 "query": request.question
