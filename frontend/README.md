@@ -1,46 +1,40 @@
-# MentorSpace Frontend
+# DEVORA Frontend — Knowledge Engine Redesign
 
-Frontend for the MentorSpace / Devora AI Developer Onboarding Platform.
+A high-fidelity Next.js 15 / React 19 / TypeScript / Tailwind CSS developer onboarding command center.
 
-## Backend contract used
+## Included UX
 
-The frontend calls the existing FastAPI backend without changing its routes:
+- DEVORA secure access portal with mock credentials
+- Protected `/cockpit` route
+- Admin and Developer mode separation
+- Command Center dashboard
+- Repository Intelligence flow: URL → analyze → ingestion → module metadata → module detail
+- Generic Learning Path with module cards and progress
+- Module → quiz → Bob feedback → hint → unlock flow
+- Project Knowledge / document ingestion status
+- Admin-only Knowledge Gap Analytics
+- Admin broadcasts and developer notes feed
+- Global persistent Bob assistant with stateful glow, confidence UI, retrieved context and knowledge-gap warnings
+- Responsive sidebar/navigation and mobile layout
+- React Context state with localStorage-backed learning progress/session
 
-- POST `/register`
-- POST `/login`
-- GET `/dashboard`
-- GET `/missions`
-- POST `/complete-mission`
-- GET `/learning-path`
-- POST `/generate-learning-path`
-- POST `/upload/repository`
-- POST `/upload/documents`
-- GET `/notifications`
-- GET `/analytics`
-- POST `/ask-bob`
+## Run locally
 
-## Architecture
-
-Browser / React UI -> FastAPI backend -> MongoDB / Repository Parser / Knowledge Engine / IBM Bob.
-
-The frontend never calls MongoDB, Repository Parser, Knowledge Engine or IBM Bob directly.
-
-## Run
-
-1. Install Node.js.
-2. Open this folder.
-3. Run `npm install`.
-4. Create `.env.local`:
-
-```env
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+```bash
+npm install
+npm run dev
 ```
 
-5. Run `npm run dev`.
-6. Open `http://localhost:3000`.
+Then open:
 
-## Important backend response note
+`http://localhost:3000`
 
-The API screenshots specify routes but do not expose every response/request field. The UI therefore reads common fields defensively (for example `access_token`, `token`, `missions`, `modules`, `answer`) and displays the raw analytics response where appropriate.
+## Demo credentials
 
-If your FastAPI Pydantic schemas use different field names, update only `lib/api.ts` and the small field-picking sections in the relevant pages; the route contract itself remains unchanged.
+- Admin: `gowri` / `gowri_lead_secure`
+- Developer: `ankita` / `dev_ankita_pass`
+- Developer: `hemitha` / `dev_hemitha_pass`
+- Developer: `repodev` / `dev_repodev_pass`
+- Developer: `knowledge_eng` / `dev_knowledge_pass`
+
+Backend/API calls are intentionally mock-ready so the UI can be connected to the finalized DEVORA backend later.
