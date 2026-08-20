@@ -1,2 +1,2 @@
-import { redirect } from "next/navigation";
-export default function Home() { redirect("/login"); }
+import { Portal } from "../components/portal";
+export default function Page(){return <Portal/>}
