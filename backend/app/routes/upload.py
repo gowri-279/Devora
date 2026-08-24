@@ -1,80 +1,166 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from pydantic import BaseModel
-import subprocess
-import shutil
 from pathlib import Path
 from urllib.parse import urlparse
+import requests
 
 router = APIRouter(tags=["Upload"])
 
 
+# ==============================
+# Configuration
+# ==============================
+
+PARSER_URL = "http://172.51.132.199:8000"
+KE_URL = "http://172.51.156.205:8001"
+
+
+# ==============================
+# Request Models
+# ==============================
+
 class RepositoryRequest(BaseModel):
     repo_url: str
 
+
+# ==============================
+# Repository Upload + Integration
+# ==============================
 
 @router.post("/upload/repository")
 def upload_repository(request: RepositoryRequest):
 
     repo_url = request.repo_url.strip()
 
-    # 1. Validate that the URL is a GitHub URL
+    # 1. Validate GitHub URL
     parsed_url = urlparse(repo_url)
 
-    if parsed_url.netloc.lower() not in ["github.com", "www.github.com"]:
+    if parsed_url.netloc.lower() not in [
+        "github.com",
+        "www.github.com"
+    ]:
         raise HTTPException(
             status_code=400,
             detail="Please provide a valid GitHub repository URL."
         )
 
-    # 2. Check that the repository exists and is accessible
-    check_repo = subprocess.run(
-        ["git", "ls-remote", repo_url],
-        capture_output=True,
-        text=True
-    )
-
-    if check_repo.returncode != 0:
-        raise HTTPException(
-            status_code=404,
-            detail="Repository does not exist or is not publicly accessible."
+    # 2. Call Repo Parser
+    try:
+        parser_response = requests.post(
+            f"{PARSER_URL}/repositories/analyse",
+            json={
+                "repository_url": repo_url
+            },
+            timeout=300
         )
 
-    # 3. Create temporary repository folder
-    temp_dir = Path("temp")
-    repo_dir = temp_dir / "repo"
+        parser_response.raise_for_status()
 
-    if repo_dir.exists():
-        shutil.rmtree(repo_dir)
+    except requests.RequestException as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Repo Parser request failed: {str(e)}"
+        )
 
-    temp_dir.mkdir(exist_ok=True)
+    # 3. Parse Repo Parser response
+    try:
+        parser_result = parser_response.json()
 
-    # 4. Clone the repository
-    clone_result = subprocess.run(
-        ["git", "clone", repo_url, str(repo_dir)],
-        capture_output=True,
-        text=True
-    )
+    except ValueError:
+        raise HTTPException(
+            status_code=502,
+            detail="Repo Parser returned an invalid JSON response."
+        )
 
-    if clone_result.returncode != 0:
+    # 4. Check Parser status
+    if parser_result.get("status") != "success":
         raise HTTPException(
             status_code=500,
-            detail="Repository could not be cloned."
+            detail={
+                "message": "Repo Parser failed to analyse the repository.",
+                "parser_response": parser_result
+            }
         )
 
-    # 5. Return success
+    # 5. Extract repository metadata
+    repo_metadata = parser_result.get("data")
+
+    if not repo_metadata:
+        raise HTTPException(
+            status_code=500,
+            detail="Repo Parser returned no repository metadata."
+        )
+
+    # Debug information
+    print("\n========== REPO PARSER DEBUG ==========")
+    print("repository:", repo_metadata.get("repository"))
+    print("languages:", len(repo_metadata.get("languages", [])))
+    print("frameworks:", len(repo_metadata.get("frameworks", [])))
+    print("databases:", len(repo_metadata.get("databases", [])))
+    print("modules:", len(repo_metadata.get("modules", [])))
+    print("files:", len(repo_metadata.get("files", [])))
+    print("dependencies:", len(repo_metadata.get("dependencies", [])))
+    print("symbols:", len(repo_metadata.get("symbols", [])))
+    print("entrypoints:", len(repo_metadata.get("entrypoints", [])))
+    print("errors:", len(repo_metadata.get("errors", [])))
+    print("=======================================\n")
+
+    # 6. Send metadata to Knowledge Engine
+    ke_payload = {
+        "project_id": "devora",
+        "repo_metadata": repo_metadata
+    }
+
+    try:
+        ke_response = requests.post(
+            f"{KE_URL}/learning-path",
+            json=ke_payload,
+            timeout=120
+        )
+
+        ke_response.raise_for_status()
+
+    except requests.RequestException as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Knowledge Engine request failed: {str(e)}"
+        )
+
+    # 7. Parse KE response
+    try:
+        ke_result = ke_response.json()
+
+    except ValueError:
+        ke_result = {
+            "raw_response": ke_response.text
+        }
+
+    # 8. Return complete integration result
     return {
-        "message": "Repository uploaded successfully.",
+        "message": "Repository analysed and learning path generated successfully.",
         "repo_url": repo_url,
-        "path": str(repo_dir)
+        "parser_status": parser_result.get("status"),
+        "repository_metadata": repo_metadata,
+        "learning_path": ke_result
     }
 
 
+# ==============================
+# Document Upload
+# ==============================
+
 @router.post("/upload/documents")
 async def upload_documents(file: UploadFile = File(...)):
+
     temp_dir = Path("temp/docs")
     temp_dir.mkdir(parents=True, exist_ok=True)
 
-    allowed_extensions = {".pdf", ".docx", ".txt", ".md"}
+    allowed_extensions = {
+        ".pdf",
+        ".docx",
+        ".txt",
+        ".md"
+    }
 
     filename = Path(file.filename).name
     extension = Path(filename).suffix.lower()
