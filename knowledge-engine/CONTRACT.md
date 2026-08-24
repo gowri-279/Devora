@@ -290,3 +290,9 @@ can pass absolute file paths to `/ingest`.
   the final `modules.json` contract is agreed.
 - Similarity thresholds are tuned for the current MiniLM setup and may still
   need small adjustments after full integration testing.
+
+Frontend- Ankita
+Backend- Hemitha
+Repository Intelligence - Harshini
+Knowledge Engine - Mohitha
+AI/IBM BOB Integration - Gowri

@@ -109,7 +109,23 @@ def ingest_endpoint(req: IngestRequest):
 
 @app.post("/learning-path")
 def learning_path_endpoint(req: LearningPathRequest):
-    return generate_learning_path(req.project_id, repo_metadata=req.repo_metadata)
+    print("\n========== LEARNING PATH DEBUG ==========")
+    print("project_id:", req.project_id)
+    print("repo_metadata received:", req.repo_metadata is not None)
+
+    if req.repo_metadata:
+        print("repo_metadata keys:", list(req.repo_metadata.keys()))
+        print("modules count:", len(req.repo_metadata.get("modules", [])))
+        print("dependencies count:", len(req.repo_metadata.get("dependencies", [])))
+        print("symbols count:", len(req.repo_metadata.get("symbols", [])))
+        print("entrypoints count:", len(req.repo_metadata.get("entrypoints", [])))
+
+    print("=========================================\n")
+
+    return generate_learning_path(
+        req.project_id,
+        repo_metadata=req.repo_metadata
+    )
 
 @app.get("/gaps") 
 def gaps_endpoint(project_id: str | None = None, min_occurrences: int = 1): 
