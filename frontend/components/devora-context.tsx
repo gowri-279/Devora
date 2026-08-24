@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
-import type { Module, Tab } from "../lib/types";
-import { projectModules } from "../lib/data";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import type { LearningPathMode, LearningPathResponse, LearningPathStep, RepositorySummary, Tab } from "../lib/types";
+import { fetchLearningPath } from "../lib/learningPath";
 
 type Confidence = "HIGH"|"MEDIUM"|"LOW";
 type BobResponse = {summary:string;confidence:Confidence;source_type:string;reference:string;answer_preview:string;context?:string};
@@ -11,46 +11,59 @@ type BobState = "idle"|"listening"|"thinking"|"responding"|"knowledge-gap"|"succ
 type State = {
  tab:Tab; setTab:(tab:Tab)=>void;
  project:string; setProject:(p:string)=>void;
- modules:Module[];
- completed:string[]; complete:(id:string)=>void;
- selectedModuleId:string|null; setSelectedModuleId:(id:string|null)=>void;
+ steps:LearningPathStep[]; stepsLoading:boolean;
+ repositorySummary:RepositorySummary|null; mode:LearningPathMode|null;
+ completed:number[]; complete:(step:number)=>void;
+ selectedStep:number|null; setSelectedStep:(step:number|null)=>void;
  bobOpen:boolean; setBobOpen:(v:boolean)=>void;
  bobState:BobState; setBobState:(v:BobState)=>void;
  bobMessages:BobMessage[]; addBob:(m:Omit<BobMessage,"id">)=>void;
 };
 const Ctx=createContext<State|null>(null);
 const initialMessages:BobMessage[]=[{id:"bob-boot",from:"bob",text:"Knowledge Engine online. I can help with the active module, repository structure, documentation and your next onboarding checkpoint."}];
-const PROGRESS_KEY="devora_progress_v2";
-function initialCompleted():Record<string,string[]>{
- if(typeof window==="undefined")return {"payment-service":["m1"]};
+const PROGRESS_KEY="devora_progress_v3";
+function initialCompleted():Record<string,number[]>{
+ if(typeof window==="undefined")return {"payment-service":[1]};
  try{
   const raw=localStorage.getItem(PROGRESS_KEY);
   if(raw)return JSON.parse(raw);
-  const legacy=localStorage.getItem("devora_progress_v1");
-  if(legacy)return {"payment-service":JSON.parse(legacy)};
  }catch{}
- return {"payment-service":["m1"]};
+ return {"payment-service":[1]};
 }
 export function DevoraProvider({children}:{children:React.ReactNode}){
  const [tab,setTab]=useState<Tab>("command");
  const [project,setProjectState]=useState("payment-service");
- const [completedByProject,setCompletedByProject]=useState<Record<string,string[]>>(initialCompleted);
- const [selectedModuleId,setSelectedModuleId]=useState<string|null>(null);
+ const [completedByProject,setCompletedByProject]=useState<Record<string,number[]>>(initialCompleted);
+ const [selectedStep,setSelectedStep]=useState<number|null>(null);
  const [bobOpen,setBobOpen]=useState(false);
  const [bobState,setBobState]=useState<BobState>("idle");
  const [bobMessages,setBobMessages]=useState<BobMessage[]>(initialMessages);
- const modules=projectModules[project as keyof typeof projectModules]||projectModules["payment-service"];
+ const [pathData,setPathData]=useState<LearningPathResponse|null>(null);
+ const [stepsLoading,setStepsLoading]=useState(true);
+
+ // The learning path is fully backend-driven: whatever the Knowledge Engine's
+ // /learning-path endpoint returns for the active project is what renders here.
+ useEffect(()=>{
+  let cancelled=false;
+  setStepsLoading(true);
+  fetchLearningPath(project).then(data=>{if(!cancelled){setPathData(data);setStepsLoading(false)}});
+  return ()=>{cancelled=true};
+ },[project]);
+
+ const steps=pathData?.learning_path||[];
+ const repositorySummary=pathData?.repository_summary||null;
+ const mode=pathData?.mode||null;
  const completed=completedByProject[project]||[];
- const complete=(id:string)=>setCompletedByProject(v=>{
+ const complete=(step:number)=>setCompletedByProject(v=>{
   const current=v[project]||[];
-  if(current.includes(id))return v;
-  const next={...v,[project]:[...current,id]};
+  if(current.includes(step))return v;
+  const next={...v,[project]:[...current,step]};
   if(typeof window!=="undefined")localStorage.setItem(PROGRESS_KEY,JSON.stringify(next));
   return next;
  });
- const setProject=(p:string)=>{setProjectState(p);setSelectedModuleId(null)};
+ const setProject=(p:string)=>{setProjectState(p);setSelectedStep(null)};
  const addBob=(m:Omit<BobMessage,"id">)=>setBobMessages(v=>[...v,{...m,id:`bob-${Date.now()}-${v.length}`}]);
- const value=useMemo(()=>({tab,setTab,project,setProject,modules,completed,complete,selectedModuleId,setSelectedModuleId,bobOpen,setBobOpen,bobState,setBobState,bobMessages,addBob}),[tab,project,modules,completed,selectedModuleId,bobOpen,bobState,bobMessages]);
+ const value=useMemo(()=>({tab,setTab,project,setProject,steps,stepsLoading,repositorySummary,mode,completed,complete,selectedStep,setSelectedStep,bobOpen,setBobOpen,bobState,setBobState,bobMessages,addBob}),[tab,project,steps,stepsLoading,repositorySummary,mode,completed,selectedStep,bobOpen,bobState,bobMessages]);
  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 export function useDevora(){const v=useContext(Ctx); if(!v) throw new Error("useDevora must be inside DevoraProvider"); return v;}

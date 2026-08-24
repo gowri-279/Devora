@@ -1,4 +1,8 @@
-import type { Module, RepoModule, User } from "./types";
+import type { RepoModule, User } from "./types";
+
+// Legacy per-project content used only as the source for the local learning-path
+// fallback (see lib/learningPath.ts) when no backend is configured or reachable.
+type LegacyModule = { id:string; title:string; description:string; sources:string[]; status:string; duration:string; objectives:string[]; code:string; quiz:{question:string;options:string[];answer:number;hint?:string}[]; };
 
 export const users: User[] = [
  {id:"gowri",name:"Gowri",role:"admin",team:"Team Lead",progress:86,avatar:"GW",specialty:"Architecture & Delivery"},
@@ -25,7 +29,7 @@ export const projectLabels: Record<ProjectId,string> = {
  "orders-service":"orders-service",
 };
 
-export const projectModules: Record<ProjectId, Module[]> = {
+export const projectModules: Record<ProjectId, LegacyModule[]> = {
  "payment-service": [
   {id:"m1",title:"Project Overview",description:"Understand the project purpose, architecture, services, ownership boundaries and key components.",sources:["README.md","ARCHITECTURE.md"],status:"completed",duration:"18 min",objectives:["Map the repository folders","Identify service boundaries","Trace the local development flow"],code:"git clone <repo>\ncd Devora\ncode .",quiz:[{question:"Which layer is the central controller?",options:["Frontend","FastAPI backend","Knowledge Engine","IBM Bob"],answer:1},{question:"Where should repository parsing happen?",options:["Frontend","Repository Parser","Bob","Browser"],answer:1}]},
   {id:"m2",title:"Local Setup",description:"Set up the development environment and run the project locally before touching integration code.",sources:["LOCAL_SETUP.md","README.md"],status:"current",duration:"20 min",objectives:["Install dependencies","Run the frontend","Start the FastAPI backend"],code:"npm install\nnpm run dev\n# http://localhost:3000",quiz:[{question:"Which command starts the Next.js development server?",options:["npm run dev","npm start-api","python app.py","git run"],answer:0},{question:"Where does the frontend run locally?",options:["localhost:3000","localhost:8000","localhost:5000","localhost:27017"],answer:0}]},
