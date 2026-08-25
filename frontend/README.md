@@ -1,22 +1,10 @@
-# DEVORA Frontend — Knowledge Engine Redesign
+# DEVORA — Developer Knowledge Command Center
 
-A high-fidelity Next.js 15 / React 19 / TypeScript / Tailwind CSS developer onboarding command center.
+DEVORA is a Next.js developer onboarding cockpit combining repository intelligence, documentation-grounded learning paths, project knowledge and the persistent Bob companion.
 
-## Included UX
+## Visual direction
 
-- DEVORA secure access portal with mock credentials
-- Protected `/cockpit` route
-- Admin and Developer mode separation
-- Command Center dashboard
-- Repository Intelligence flow: URL → analyze → ingestion → module metadata → module detail
-- Generic Learning Path with module cards and progress
-- Module → quiz → Bob feedback → hint → unlock flow
-- Project Knowledge / document ingestion status
-- Admin-only Knowledge Gap Analytics
-- Admin broadcasts and developer notes feed
-- Global persistent Bob assistant with stateful glow, confidence UI, retrieved context and knowledge-gap warnings
-- Responsive sidebar/navigation and mobile layout
-- React Context state with localStorage-backed learning progress/session
+The current frontend uses a deep navy / petrol-blue palette inspired by the supplied atmospheric reference: textured teal light, restrained cyan accents, warm amber for attention states, glass panels, fine grid lines and deliberate micro-interactions. The goal is a crafted product interface rather than a generic AI dashboard.
 
 ## Run locally
 
@@ -25,16 +13,6 @@ npm install
 npm run dev
 ```
 
-Then open:
+Open `http://localhost:3000`.
 
-`http://localhost:3000`
-
-## Demo credentials
-
-- Admin: `gowri` / `gowri_lead_secure`
-- Developer: `ankita` / `dev_ankita_pass`
-- Developer: `hemitha` / `dev_hemitha_pass`
-- Developer: `repodev` / `dev_repodev_pass`
-- Developer: `knowledge_eng` / `dev_knowledge_pass`
-
-Backend/API calls are intentionally mock-ready so the UI can be connected to the finalized DEVORA backend later.
+The demo authentication credentials are listed in the in-app Credentials Reference Sheet.
