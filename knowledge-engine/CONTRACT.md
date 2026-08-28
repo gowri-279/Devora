@@ -273,13 +273,20 @@ The learning path is generated dynamically from ingested documents:
 
 ## Current architecture assumption
 
-During development, teammates may run services on different laptops.
+During development, teammates may run services on different machines.
 
-For the final integrated demo, Backend and Knowledge Engine are expected to
-run on the same machine (or share the same workspace volume), so the backend
-can pass absolute file paths to `/ingest`.
+Repository acquisition is owned by the Repository Parser. The Parser clones
+the repository and is responsible for exposing the repository source through
+a source artifact/reference.
 
----
+Backend orchestrates the flow between the Repository Parser and Knowledge
+Engine. Repository metadata is passed separately to `/learning-path`, while
+the repository source is transferred to the Knowledge Engine for ingestion.
+
+The Knowledge Engine should not rely on Parser/Backend-local absolute
+`file_paths` when services run on different machines. The final source
+transfer mechanism is pending agreement on the repository artifact storage
+and access contract.
 
 ## Known limitations
 
@@ -290,9 +297,3 @@ can pass absolute file paths to `/ingest`.
   the final `modules.json` contract is agreed.
 - Similarity thresholds are tuned for the current MiniLM setup and may still
   need small adjustments after full integration testing.
-
-Frontend- Ankita
-Backend- Hemitha
-Repository Intelligence - Harshini
-Knowledge Engine - Mohitha
-AI/IBM BOB Integration - Gowri

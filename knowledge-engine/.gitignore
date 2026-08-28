@@ -4,3 +4,5 @@ __pycache__/
 .DS_Store 
 uploads/ 
 venv/
+data/learning_path.json
+data/repository_metadata.json
