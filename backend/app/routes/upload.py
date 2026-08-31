@@ -3,6 +3,13 @@ from pydantic import BaseModel
 from pathlib import Path
 from urllib.parse import urlparse
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv(
+    "C:/Users/Administrator/Devora/.env",
+    override=True
+)
 
 router = APIRouter(tags=["Upload"])
 
@@ -11,10 +18,10 @@ router = APIRouter(tags=["Upload"])
 # Configuration
 # ==============================
 
-PARSER_URL = "http://172.51.132.199:8000"
-KE_URL = "http://172.51.156.205:8001"
+PARSER_URL = "http://10.255.7.46:8000"
+KE_URL = os.getenv("KNOWLEDGE_ENGINE_URL")
 
-
+print(">>> UPLOAD ROUTE KE URL:", KE_URL)
 # ==============================
 # Request Models
 # ==============================
@@ -107,9 +114,9 @@ def upload_repository(request: RepositoryRequest):
 
     # 6. Send metadata to Knowledge Engine
     ke_payload = {
-        "project_id": "devora",
-        "repo_metadata": repo_metadata
-    }
+    "project_id": "fastapi",
+    "repo_metadata": repo_metadata
+}
 
     try:
         ke_response = requests.post(
