@@ -23,6 +23,8 @@ CHUNKS_COLLECTION_NAME = os.getenv("MONGODB_COLLECTION", "knowledge_chunks")
 RAW_DOCUMENTS_COLLECTION_NAME = "raw_documents"
 PROJECTS_COLLECTION_NAME = "projects_meta"
 GAPS_COLLECTION_NAME = "knowledge_gaps"
+DEVELOPER_TWINS_COLLECTION_NAME = "developer_twins"
+MODULE_PROGRESS_COLLECTION_NAME = "module_progress"
 
 _client = None
 
@@ -55,6 +57,11 @@ def get_projects_collection():
 def get_gaps_collection():
     return get_db()[GAPS_COLLECTION_NAME]
 
+def get_developer_twins_collection():
+    return get_db()[DEVELOPER_TWINS_COLLECTION_NAME]
+
+def get_module_progress_collection():
+    return get_db()[MODULE_PROGRESS_COLLECTION_NAME]
 
 def check_connection() -> bool:
     get_client().admin.command("ping")

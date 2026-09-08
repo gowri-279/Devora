@@ -183,6 +183,17 @@ def list_raw_document_content(
     Archived project documents are excluded by default.
 
     The original text is preserved exactly as stored.
+
+    IMPORTANT:
+        Do NOT sort this MongoDB query.
+
+        Raw documents contain potentially large text fields.
+        Sorting thousands of full documents inside MongoDB can
+        exceed MongoDB's 32 MB in-memory sort limit.
+
+        Consumers of this function do not require a particular
+        ordering, so the database should return the matching
+        documents without an expensive sort.
     """
 
     filter_query = {
@@ -207,9 +218,6 @@ def list_raw_document_content(
             {
                 "_id": 0,
             },
-        ).sort(
-            "source_file",
-            1,
         )
     )
 

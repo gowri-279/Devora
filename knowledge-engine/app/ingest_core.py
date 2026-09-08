@@ -34,34 +34,20 @@ from .projects import start_new_project
 
 def _source_file_path(
     file_path: str,
+    source_root: str | None = None,
 ) -> str:
     """
     Convert an input file path into a stable repository/source path.
 
-    For repository files, Path.parts is used to preserve the
-    meaningful relative path.
-
-    Example:
-
-        data/fastapi/security/oauth2.py
-
-    becomes:
-
-        fastapi/security/oauth2.py
-
-    If the path is already relative to the repository, it is
-    preserved as-is.
-
-    Team documentation such as:
-
-        data/team_foundations.md
-
-    remains:
-
-        team_foundations.md
+    When source_root is provided, the path is made relative to it.
+    Otherwise, existing ingestion behavior is preserved.
     """
 
     path = Path(file_path)
+
+    if source_root:
+        root = Path(source_root).resolve()
+        return path.resolve().relative_to(root).as_posix()
 
     parts = path.parts
 
@@ -84,6 +70,7 @@ def run_ingest(
     project_id: str,
     file_paths: List[str],
     is_new_project: bool = True,
+    source_root: str | None = None,
 ) -> dict:
     """
     Run the complete ingestion pipeline.
@@ -157,7 +144,8 @@ def run_ingest(
     for file_path, text in documents:
 
         source_file = _source_file_path(
-            file_path
+            file_path,
+            source_root=source_root,
         )
 
         filename = Path(

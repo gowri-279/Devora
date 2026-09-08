@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "devora": {
+      "command": "python3",
+      "args": [
+        "server.py"
+      ],
+      "cwd": "/Users/sreemohithareddy/Desktop/Code/Devora/devora-mcp",
+      "env": {
+        "DEVORA_BACKEND_URL": "http://127.0.0.1:8001"
+      },
+      "disabledTools": []
+    }
+  }
+}

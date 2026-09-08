@@ -6,15 +6,72 @@ No chunking, no storage here.
 from pathlib import Path
 from typing import List, Tuple
 
-SUPPORTED_EXTENSIONS = {".md", ".txt", ".pdf", ".docx", ".rst"}
+
+SUPPORTED_EXTENSIONS = {
+    # Documentation / text
+    ".md",
+    ".txt",
+    ".rst",
+
+    # Python
+    ".py",
+
+    # JavaScript / TypeScript
+    ".js",
+    ".jsx",
+    ".ts",
+    ".tsx",
+
+    # Java / JVM
+    ".java",
+    ".kt",
+
+    # C-family
+    ".c",
+    ".cpp",
+    ".cs",
+
+    # Other programming languages
+    ".go",
+    ".rs",
+    ".php",
+    ".rb",
+    ".swift",
+
+    # Web
+    ".html",
+    ".css",
+    ".scss",
+
+    # Data / configuration
+    ".json",
+    ".xml",
+    ".toml",
+    ".ini",
+    ".cfg",
+    ".sql",
+    ".yml",
+    ".yaml",
+
+    # Shell
+    ".sh",
+    ".bash",
+
+    # Documents
+    ".pdf",
+    ".docx",
+}
 
 
 def load_document(file_path: str) -> str:
     path = Path(file_path)
     ext = path.suffix.lower()
 
-    if ext in (".md", ".txt", ".rst"):
-        return path.read_text(encoding="utf-8", errors="ignore")
+    if ext in SUPPORTED_EXTENSIONS - {".pdf", ".docx"}:
+        return path.read_text(
+            encoding="utf-8",
+            errors="ignore",
+        )
 
     if ext == ".pdf":
         return _load_pdf(path)
@@ -23,7 +80,8 @@ def load_document(file_path: str) -> str:
         return _load_docx(path)
 
     raise ValueError(
-        f"Unsupported file type '{ext}' for {path.name}. Supported: {sorted(SUPPORTED_EXTENSIONS)}"
+        f"Unsupported file type '{ext}' for {path.name}. "
+        f"Supported: {sorted(SUPPORTED_EXTENSIONS)}"
     )
 
 
@@ -31,17 +89,27 @@ def _load_pdf(path: Path) -> str:
     from pypdf import PdfReader
 
     reader = PdfReader(str(path))
-    return "\n".join(page.extract_text() or "" for page in reader.pages)
+
+    return "\n".join(
+        page.extract_text() or ""
+        for page in reader.pages
+    )
 
 
 def _load_docx(path: Path) -> str:
     import docx
 
     document = docx.Document(str(path))
-    return "\n".join(p.text for p in document.paragraphs)
+
+    return "\n".join(
+        p.text
+        for p in document.paragraphs
+    )
 
 
-def load_documents(file_paths: List[str]) -> List[Tuple[str, str]]:
+def load_documents(
+    file_paths: List[str],
+) -> List[Tuple[str, str]]:
     """
     Returns (file_path, text) tuples.
     Raises on failure — caller handles skipping.
@@ -50,22 +118,38 @@ def load_documents(file_paths: List[str]) -> List[Tuple[str, str]]:
     results = []
 
     for fp in file_paths:
+
         text = load_document(fp)
 
         if text.strip():
-            results.append((fp, text))
+            results.append(
+                (fp, text)
+            )
 
     return results
 
 
 if __name__ == "__main__":
-    data_dir = Path(__file__).parent.parent / "data"
 
-    files = [str(p) for p in data_dir.iterdir() if p.suffix.lower() in SUPPORTED_EXTENSIONS]
+    data_dir = (
+        Path(__file__).parent.parent
+        / "data"
+    )
+
+    files = [
+        str(path)
+        for path in data_dir.iterdir()
+        if path.suffix.lower()
+        in SUPPORTED_EXTENSIONS
+    ]
 
     docs = load_documents(files)
 
     for file_path, _ in docs:
-        print(f"Loaded: {Path(file_path).name}")
+        print(
+            f"Loaded: {Path(file_path).name}"
+        )
 
-    print(f"\nTotal documents: {len(docs)}")
+    print(
+        f"\nTotal documents: {len(docs)}"
+    )

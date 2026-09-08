@@ -96,13 +96,16 @@ def check_and_record_gap(
     match = _find_matching_gap(query_embedding, project_id)
 
     if match:
+        update = {
+            "$inc": {"occurrence_count": 1},
+            "$set": {"last_seen_at": now, "top_score": top_score},
+            "$addToSet": {"example_queries": query},
+        }
+        if developer_id:
+            update["$addToSet"]["developer_ids"] = developer_id
         collection.update_one(
             {"gap_id": match["gap_id"]},
-            {
-                "$inc": {"occurrence_count": 1},
-                "$set": {"last_seen_at": now, "top_score": top_score},
-                "$addToSet": {"example_queries": query}  # keeps a few paraphrase examples for Admin to read
-            },
+            update,
         )
         updated = collection.find_one( 
             {"gap_id": match["gap_id"]}, 
@@ -118,6 +121,7 @@ def check_and_record_gap(
         "project_id": project_id,
         "top_score": top_score,
         "asked_by_developer_id": developer_id,
+        "developer_ids": [developer_id] if developer_id else [],
         "status": "open",
         "occurrence_count": 1,
         "first_seen_at": now,
@@ -129,14 +133,25 @@ def check_and_record_gap(
     return gap
 
 
-def list_open_gaps(project_id: Optional[str] = None, min_occurrences: int = 1) -> list:
-    filter_query = {"status": "open", "occurrence_count": {"$gte": min_occurrences}}
+def list_open_gaps(
+    project_id: Optional[str] = None,
+    min_occurrences: int = 1,
+    status: str = "open",
+) -> list:
+    filter_query = {
+        "status": status,
+        "occurrence_count": {"$gte": min_occurrences},
+    }
+
     if project_id:
         filter_query["project_id"] = project_id
 
     results = list(
         get_gaps_collection()
-        .find(filter_query, {"_id": 0, "embedding": 0})  # never leak raw vectors to the API
+        .find(
+            filter_query,
+            {"_id": 0, "embedding": 0},
+        )
         .sort("occurrence_count", -1)
     )
     return results

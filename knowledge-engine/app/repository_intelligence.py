@@ -46,13 +46,88 @@ EXAMPLE_PREFIXES = (
 
 
 def _tier_for_path(path: str) -> str:
-    first_segment = path.split("/")[0].lower()
+    """
+    Classify repository paths into onboarding-relevant tiers.
+
+    The Repository Parser may report repository-support directories
+    such as .github, CI configuration, release automation, etc. as
+    modules. Those are useful repository metadata, but they should NOT
+    become core learning modules.
+
+    Tiers:
+        core      -> actual project implementation
+        reference -> tests/reference material
+        example   -> docs/examples/tutorial material
+        excluded  -> repository/process/tooling noise
+    """
+
+    normalized = path.replace("\\", "/").strip("/").lower()
+
+    if not normalized:
+        return "excluded"
+
+    parts = normalized.split("/")
+    first_segment = parts[0]
+
+    # --------------------------------------------------
+    # REPOSITORY / PROCESS NOISE
+    # --------------------------------------------------
+
+    excluded_roots = {
+        ".git",
+        ".github",
+        ".gitlab",
+        ".circleci",
+        ".azure",
+        ".buildkite",
+        "ci",
+        "cd",
+        "coverage",
+        "dist",
+        "build",
+        "release",
+        "releases",
+        "translations",
+        "translation",
+    }
+
+    if first_segment in excluded_roots:
+        return "excluded"
+
+    # Common repository-process modules that may appear
+    # regardless of their parent directory.
+    excluded_names = {
+        "issue_template",
+        "issue_templates",
+        "pull_request_template",
+        "pr_template",
+        "workflows",
+        "workflow",
+        "dependabot",
+    }
+
+    module_name = parts[-1]
+
+    if module_name in excluded_names:
+        return "excluded"
+
+    # --------------------------------------------------
+    # TEST / REFERENCE
+    # --------------------------------------------------
 
     if first_segment.startswith(REFERENCE_PREFIXES):
         return "reference"
 
+    # --------------------------------------------------
+    # DOCUMENTATION / EXAMPLES
+    # --------------------------------------------------
+
     if first_segment.startswith(EXAMPLE_PREFIXES):
         return "example"
+
+    # --------------------------------------------------
+    # ACTUAL PROJECT IMPLEMENTATION
+    # --------------------------------------------------
 
     return "core"
 
@@ -1741,77 +1816,71 @@ def build_repository_modules(
             )
 
         result.append({
-            "step":
-                start_step + i,
-
-            "title":
-                _humanize_name(
-                    module["name"]
-                ),
-
-            "description":
-                _purpose_for_module(
-                    module
-                ),
-
-            "purpose":
-                _purpose_for_module(
-                    module
-                ),
-
+            "step": start_step + i,
+            "title": _humanize_name(
+                module["name"]
+            ),
+            "description": _purpose_for_module(
+                module
+            ),
+            "purpose": _purpose_for_module(
+                module
+            ),
             "learning_objectives":
-                _learning_objectives_for_module({
-                    **module,
-                    "repository_role":
-                        module.get(
-                            "repository_role",
-                            "core",
-                        ),
-                }),
-
-            "difficulty":
-                difficulty,
-
-            "estimated_minutes":
-                estimated_minutes,
-
-            "sources":
-                [path],
-
-            "evidence":
-                evidence,
-
-            "confidence":
-                module.get(
-                    "confidence",
-                    "medium",
-                ),
-
-            "importance_score":
-                module.get(
-                    "importance_score",
-                    0,
-                ),
-
-            "repository_role":
+            _learning_objectives_for_module({
+                **module,
+                "repository_role":
                 module.get(
                     "repository_role",
                     "core",
                 ),
+            }), 
+            "difficulty":
+              difficulty,
+            "estimated_minutes":
+               estimated_minutes,
+            # Repository module itself.
+            "sources":
+             [path],
 
+    # IMPORTANT:
+    # Preserve the actual files identified by
+    # the repository parser for this module.
+            "source_files":
+            list(
+                module.get(
+                    "important_files",
+                    [],
+                )
+            ),
+            "evidence":
+              evidence,
+            "confidence":
+                module.get(
+                 "confidence",
+                 "medium",
+               ),
+            "importance_score":
+                module.get(
+                  "importance_score",
+                  0,
+                ),
+            "repository_role":
+                module.get(
+                 "repository_role",
+                 "core",
+                ),
             "prerequisites":
-                prerequisite_names,
-
+               prerequisite_names,
             "dependents_count":
                 module.get(
-                    "dependents_count",
-                    0,
+                 "dependents_count",
+                 0,
                 ),
-
             "symbol_count":
                 module.get(
-                    "symbol_count",
-                    0,
+                  "symbol_count",
+                  0,
                 ),
         })
 

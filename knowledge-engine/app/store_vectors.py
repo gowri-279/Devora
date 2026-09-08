@@ -1,25 +1,26 @@
-from pymongo import MongoClient
 from dotenv import load_dotenv
+
 from app.embeddings import embed_texts
 from app.db import get_chunks_collection
-import os
 
 load_dotenv()
 
 collection = get_chunks_collection()
+
+INSERT_BATCH_SIZE = 500
 
 
 def add_chunks(chunks):
     """
     Generate embeddings and store chunks in MongoDB.
 
-    Clears old chunks before inserting new ones, keyed by (project_id,
-    source_file) for project-scope chunks OR (project_id=None,
-    source_file) for team-scope chunks. This is the fix for the bug where
-    team-scope chunks (project_id=None) never got cleared on re-ingest —
-    the old version only deleted by non-None project_ids, so re-uploading
-    team_foundations.md just kept piling up duplicate old+new copies
-    forever instead of replacing them.
+    Clears old chunks before inserting new ones, keyed by
+    (project_id, source_file) for project-scope chunks OR
+    (project_id=None, source_file) for team-scope chunks.
+
+    MongoDB inserts are performed in smaller batches so that large
+    repository ingestions do not require one enormous insert_many()
+    operation.
 
     Returns number of inserted records.
     """
@@ -31,31 +32,83 @@ def add_chunks(chunks):
     embeddings = embed_texts(texts)
 
     records = []
-    for chunk, embedding in zip(chunks, embeddings):
-        records.append({**chunk, "embedding": embedding})
 
-    # Clear old chunks for every (project_id, source_file) combo present
-    # in this batch — covers BOTH project-scope docs (project_id set) AND
-    # team-scope docs (project_id=None), unlike the old version.
+    for chunk, embedding in zip(
+        chunks,
+        embeddings,
+    ):
+        records.append(
+            {
+                **chunk,
+                "embedding": embedding,
+            }
+        )
+
+    # Clear old chunks for every (project_id, source_file) combo
+    # present in this batch. This covers BOTH project-scope docs
+    # and team-scope docs.
     seen_keys = set()
+
     for c in chunks:
-        key = (c.get("project_id"), c["source_file"])
+        key = (
+            c.get("project_id"),
+            c["source_file"],
+        )
+
         if key in seen_keys:
             continue
+
         seen_keys.add(key)
-        collection.delete_many({"project_id": key[0], "source_file": key[1]})
 
-    result = collection.insert_many(records)
+        collection.delete_many(
+            {
+                "project_id": key[0],
+                "source_file": key[1],
+            }
+        )
 
-    return len(result.inserted_ids)
+    # Insert in smaller batches instead of one enormous
+    # insert_many() operation.
+    inserted_count = 0
+
+    for start in range(
+        0,
+        len(records),
+        INSERT_BATCH_SIZE,
+    ):
+        batch = records[
+            start:start + INSERT_BATCH_SIZE
+        ]
+
+        result = collection.insert_many(
+            batch
+        )
+
+        inserted_count += len(
+            result.inserted_ids
+        )
+
+        print(
+            ">>> VECTOR INSERT BATCH:",
+            f"{start + len(batch)}/{len(records)}"
+        )
+
+    return inserted_count
 
 
 if __name__ == "__main__":
-    # Debug/manual run: re-inserts whatever prepare_vectors.py last built.
+    # Debug/manual run: re-inserts whatever prepare_vectors.py
+    # last built.
     from app.prepare_vectors import records
 
-    inserted = add_chunks(records)  # goes through the same fixed dedupe logic above
+    inserted = add_chunks(records)
 
     total = collection.count_documents({})
-    print(f"Inserted {inserted} vector records")
-    print(f"Total documents in collection: {total}")
+
+    print(
+        f"Inserted {inserted} vector records"
+    )
+
+    print(
+        f"Total documents in collection: {total}"
+    )

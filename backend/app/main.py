@@ -13,6 +13,10 @@ from app.routes.upload import router as upload_router
 from app.routes.notifications import router as notifications_router
 from app.routes.analytics import router as analytics_router
 from app.routes.bob import router as bob_router
+from app.routes.module_quiz import router as module_quiz_router
+from app.routes.assessment import router as assessment_router
+from app.routes.twin import router as twin_router
+from app.routes.gaps import router as gaps_router
 
 app = FastAPI(
     title="Devora Backend API",
@@ -23,8 +27,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+      "http://localhost:3001",
+      "http://127.0.0.1:3001",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -38,6 +44,10 @@ app.include_router(upload_router)
 app.include_router(notifications_router)
 app.include_router(analytics_router)
 app.include_router(bob_router)
+app.include_router(module_quiz_router)
+app.include_router(assessment_router)
+app.include_router(twin_router)
+app.include_router(gaps_router)
 
 @app.get("/")
 def home():

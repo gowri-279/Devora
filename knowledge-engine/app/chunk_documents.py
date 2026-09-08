@@ -295,22 +295,39 @@ def merge_stub_sections(
 # CHUNK SINGLE DOCUMENT
 # ============================================================
 
-def chunk_text(text: str):
+def chunk_text(text: str, source_file: str = ""):
     """
-    Markdown-aware chunking with section metadata.
+    Chunk a document using Markdown-aware sectioning for
+    documentation files and generic recursive splitting for
+    source/config files.
 
     Returns:
 
         (section_id, section_title, chunk_text)
     """
 
-    sections = split_markdown_sections(
-        text
-    )
+    extension = Path(source_file).suffix.lower()
 
-    sections = merge_stub_sections(
-        sections
-    )
+    markdown_extensions = {
+        ".md",
+        ".rst",
+    }
+
+    if extension not in markdown_extensions:
+        split_chunks = fallback_splitter.split_text(text)
+
+        return [
+            (
+                "file",
+                Path(source_file).name if source_file else "Source File",
+                chunk.strip(),
+            )
+            for chunk in split_chunks
+            if chunk.strip()
+        ]
+
+    sections = split_markdown_sections(text)
+    sections = merge_stub_sections(sections)
 
     chunks = []
 
@@ -332,16 +349,13 @@ def chunk_text(text: str):
 
         else:
 
-            split_chunks = (
-                fallback_splitter.split_text(
-                    section
-                )
+            split_chunks = fallback_splitter.split_text(
+                section
             )
 
             for c in split_chunks:
 
                 if c.strip():
-
                     chunks.append(
                         (
                             section_id,
@@ -415,9 +429,7 @@ def chunk_documents(
             source_file
         )
 
-        pieces = chunk_text(
-            text
-        )
+        pieces = chunk_text(text, source_file)
 
         section_counters = {}
 
