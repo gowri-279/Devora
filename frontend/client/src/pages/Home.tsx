@@ -64,6 +64,7 @@ import {
   type Assessment,
   type AssessmentResult,
   type LearningPathModule,
+  type LearningPathResponse,
   type ProjectDocument,
 } from "@/lib/devoraApi";
 
@@ -969,7 +970,17 @@ export default function Home() {
             />
           )}
 
-          {view === "repository" && <Repository projectId={activeProjectId} />}
+          {view === "repository" && (
+            <Repository
+              projectId={activeProjectId}
+              onConnected={(learningPath) => {
+                setBackendLearningPath(learningPath.learning_path);
+                setSelectedModule(0);
+                setCompletedModules([]);
+                setQuizPassed(false);
+              }}
+            />
+          )}
 
           {view === "members" && (
             <MemberStatus
@@ -1003,6 +1014,7 @@ export default function Home() {
       </main>
 
       <BobAssistant
+        projectId={activeProjectId}
         admin={role === "admin"}
         context={
           role === "admin"
@@ -3537,7 +3549,13 @@ function NotesFeed({
   );
 }
 
-function Repository({ projectId }: { projectId: string }) {
+function Repository({
+  projectId,
+  onConnected,
+}: {
+  projectId: string;
+  onConnected: (learningPath: LearningPathResponse) => void;
+}) {
   const [repoUrl, setRepoUrl] = useState(
     "https://github.com/ctrlaltelite/atlas-core",
   );
@@ -3555,6 +3573,8 @@ function Repository({ projectId }: { projectId: string }) {
 
     try {
       const result = await uploadRepository(url);
+
+      onConnected(result.learning_path);
 
       toast.success(
         `Repository connected: ${result.project_id}`,

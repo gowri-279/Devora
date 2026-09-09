@@ -61,9 +61,9 @@ const adminMockService = async (question: string): Promise<BobMessage> => {
 
 export type BobReviewHandoff = { id: string; question: string; uploadedContext: string };
 
-interface BobAssistantProps { context?: string; quizFeedback?: "idle" | "wrong" | "correct"; onStateChange?: (state: BobState) => void; admin?: boolean; reviewHandoff?: BobReviewHandoff | null; }
+interface BobAssistantProps { context?: string; projectId?: string; quizFeedback?: "idle" | "wrong" | "correct"; onStateChange?: (state: BobState) => void; admin?: boolean; reviewHandoff?: BobReviewHandoff | null; }
 
-export default function BobAssistant({ context = "Project Overview", quizFeedback = "idle", onStateChange, admin = false, reviewHandoff = null }: BobAssistantProps) {
+export default function BobAssistant({ context = "Project Overview", projectId = "devora", quizFeedback = "idle", onStateChange, admin = false, reviewHandoff = null }: BobAssistantProps) {
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<BobState>("idle");
   const [input, setInput] = useState("");
@@ -90,7 +90,7 @@ export default function BobAssistant({ context = "Project Overview", quizFeedbac
     setMessages((current) => [...current, { id: Date.now(), role: "user", text: reviewHandoff.question }]);
     (admin
       ? adminMockService(reviewHandoff.question)
-      : callBobApi(reviewHandoff.question, "devora")
+      : callBobApi(reviewHandoff.question, projectId)
     ).then((response) => {
       if (!active) return;
       setMessages((current) => [...current, response]);
@@ -122,7 +122,7 @@ export default function BobAssistant({ context = "Project Overview", quizFeedbac
     }
   };
 
-  const send = async (value = input, projectId = "devora") => {
+  const send = async (value = input) => {
     const question = value.trim();
     if (!question || state === "thinking") return;
     setMessages((current) => [...current, { id: Date.now(), role: "user", text: question }]);

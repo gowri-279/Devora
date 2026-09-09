@@ -41,8 +41,7 @@ def ask_bob(request: BobRequest):
         knowledge_data = response.json()
             # Notify Admin when a knowledge gap becomes reviewable.
         knowledge_gap = knowledge_data.get("knowledge_gap")
-        if knowledge_gap:
-            developer_ids = knowledge_gap.get("developer_ids", [])
+        developer_ids = knowledge_gap.get("developer_ids", []) if knowledge_gap else []
 
         if len(developer_ids) >= 2:
             db = get_db()
