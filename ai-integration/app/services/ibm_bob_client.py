@@ -131,27 +131,102 @@ class IBMBobClient:
             })
 
         # Curriculum generation mock
+        # Return a repository-specific curriculum for the demo.
         return json.dumps({
             "modules": [
                 {
-                    "title": "Project Overview",
-                    "description": "Understand the project structure, purpose, and key technologies used.",
+                    "title": "FastAPI-101 Project Architecture",
+                    "description": "Understand how the FastAPI-101 application is structured, including its application layer, services, configuration, models, database, authentication, and tests.",
                     "difficulty": "easy",
-                    "estimated_minutes": 20,
+                    "estimated_minutes": 25,
                     "learning_objectives": [
-                        "Understand the overall project architecture",
-                        "Identify key components and their relationships",
+                        "Understand the FastAPI-101 application structure",
+                        "Identify how services, models, configuration, and database components interact",
+                        "Navigate the authentication and testing layers",
                     ],
                     "prerequisites": [],
                     "lessons": [
                         {
-                            "concept": "Project Structure",
-                            "explanation": "This project is composed of multiple services working together to provide AI-powered developer onboarding.",
-                            "why_it_matters": "Understanding the overall structure helps you navigate the codebase efficiently.",
-                            "how_project_implements_it": "Services are separated into backend, knowledge-engine, ai-integration, and repository-parser.",
-                            "repository_exploration": ["Explore the root directory to understand the service layout."],
-                            "key_takeaway": "Each service has a clear single responsibility.",
-                            "sources": [],
+                            "concept": "Application Structure",
+                            "explanation": "FastAPI-101 separates application concerns into focused modules such as services, configuration, models, database, authentication, and tests.",
+                            "why_it_matters": "Understanding these boundaries helps developers navigate and safely modify the project.",
+                            "how_project_implements_it": "The repository contains an app layer with services.py, config.py, models.py, database.py, auth.py, and related application modules, alongside a dedicated tests directory.",
+                            "repository_exploration": [
+                                "Explore the app directory.",
+                                "Open services.py, config.py, models.py, database.py, and auth.py.",
+                                "Review the tests directory to understand expected behavior."
+                            ],
+                            "key_takeaway": "FastAPI-101 uses a modular application structure that separates core responsibilities.",
+                            "sources": [
+                                "app/services.py",
+                                "app/config.py",
+                                "app/models.py",
+                                "app/database.py",
+                                "app/auth.py",
+                                "tests"
+                            ],
+                        }
+                    ],
+                },
+                {
+                    "title": "Services, Database & Authentication",
+                    "description": "Learn how business logic, persistence, and authentication work together in FastAPI-101.",
+                    "difficulty": "medium",
+                    "estimated_minutes": 30,
+                    "learning_objectives": [
+                        "Understand the service layer",
+                        "Trace database interactions",
+                        "Understand authentication responsibilities",
+                    ],
+                    "prerequisites": ["FastAPI-101 Project Architecture"],
+                    "lessons": [
+                        {
+                            "concept": "Service and Persistence Flow",
+                            "explanation": "Requests are handled through application services that coordinate models and database operations.",
+                            "why_it_matters": "Tracing this flow makes it easier to debug and extend application behavior.",
+                            "how_project_implements_it": "The repository contains dedicated service, model, and database modules.",
+                            "repository_exploration": [
+                                "Trace a service method into the model and database layers.",
+                                "Inspect authentication-related code."
+                            ],
+                            "key_takeaway": "Business logic, persistence, and authentication are separated into dedicated components.",
+                            "sources": [
+                                "app/services.py",
+                                "app/models.py",
+                                "app/database.py",
+                                "app/auth.py"
+                            ],
+                        }
+                    ],
+                },
+                {
+                    "title": "Testing & Project Workflows",
+                    "description": "Understand how FastAPI-101 verifies behavior and organizes development workflows.",
+                    "difficulty": "medium",
+                    "estimated_minutes": 20,
+                    "learning_objectives": [
+                        "Understand the project's test organization",
+                        "Identify how application behavior is validated",
+                        "Explore repository development workflows",
+                    ],
+                    "prerequisites": ["Services, Database & Authentication"],
+                    "lessons": [
+                        {
+                            "concept": "Repository Testing",
+                            "explanation": "FastAPI-101 includes dedicated tests for application services and behavior.",
+                            "why_it_matters": "Tests provide a safety net when changing project functionality.",
+                            "how_project_implements_it": "The tests directory contains service-focused tests such as test_item_service.py and test_category_service.py.",
+                            "repository_exploration": [
+                                "Open tests/test_item_service.py.",
+                                "Open tests/test_category_service.py.",
+                                "Review the GitHub workflow configuration."
+                            ],
+                            "key_takeaway": "The repository combines modular code with focused automated tests.",
+                            "sources": [
+                                "tests/test_item_service.py",
+                                "tests/test_category_service.py",
+                                ".github/workflows"
+                            ],
                         }
                     ],
                 }
