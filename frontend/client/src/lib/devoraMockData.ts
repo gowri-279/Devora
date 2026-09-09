@@ -130,7 +130,7 @@ export function analyzeAssessment(answers: Record<number, string>): { summary: s
 }
 
 export const heatmapRows: HeatmapRow[] = [
-  { name: "Maya Chen", initials: "MC", color: "#8cf7d0", scores: { APIs: 84, Architecture: 72, Database: 47, Security: 52 }, status: "Assessment analyzed" },
+  { name: "Maya Chen", initials: "MC", color: "#8cf7d0", scores: { APIs: 72, Architecture: 68, Database: 65, Security: 70 }, status: "Bob assessment analyzed" },
   { name: "Aarav Shah", initials: "AS", color: "#9eaaff", scores: { APIs: 91, Architecture: 88, Database: 82, Security: 68 }, status: "Learning path active" },
   { name: "Sofia Rossi", initials: "SR", color: "#f3b56b", scores: { APIs: 57, Architecture: 61, Database: 44, Security: 39 }, status: "Needs focus" },
   { name: "Noah Williams", initials: "NW", color: "#e8a2f7", scores: { APIs: 36, Architecture: 42, Database: 31, Security: 28 }, status: "Profile imported" },

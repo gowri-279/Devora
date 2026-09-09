@@ -105,7 +105,15 @@ class IBMBobClient:
         Returns valid JSON that satisfies both the assessment evaluator
         and the curriculum service parsers.
         """
-        if "evaluate" in prompt.lower() or "assessment" in prompt.lower() or "domain_scores" in prompt.lower():
+        prompt_lower = prompt.lower()
+
+        # Curriculum prompts must always receive the curriculum mock,
+        # even when the supplied project evidence contains assessment text.
+        if "curriculum generator" not in prompt_lower and (
+            "evaluate" in prompt_lower
+            or "assessment" in prompt_lower
+            or "domain_scores" in prompt_lower
+        ):
             return json.dumps({
                 "evaluator": "mock",
                 "domain_scores": {
