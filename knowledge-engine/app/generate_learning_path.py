@@ -1428,10 +1428,26 @@ def _normalize_curriculum_modules(
         source_files = _extract_module_sources(
             {
                 **module,
-                "lessons":
-                    normalized_lessons,
+                "lessons": normalized_lessons,
             }
         )
+
+        if not source_files:
+           source_files = []
+
+           # Fallback to actual stored repository documents.
+        for document in raw_documents or []:
+           if not isinstance(document, dict):
+            continue
+           source_file = _normalize_path(
+                document.get("source_file", "")
+            )
+           if (
+               source_file
+               and source_file not in source_files
+            ):
+            source_files.append(source_file)
+        print("SOURCE FALLBACK:", source_files)
 
         # --------------------------------------------------
         # Frontend-compatible module

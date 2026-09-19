@@ -267,8 +267,15 @@ Return exactly this structure:
 }}
 
 IMPORTANT:
-- Modules must be dynamically selected.
-- Do not force a fixed number of modules.
+- Modules must be dynamically selected based on the project's actual
+  architecture, concepts, dependencies, workflows, and evidence.
+- For a project of meaningful complexity, generate enough modules to
+  cover the major architectural and implementation concepts.
+- Do not collapse substantially different concepts into one module
+  merely to keep the curriculum short.
+- Do not force a fixed number of modules, but typically generate
+  around 6-10 modules when the repository contains enough distinct
+  concepts to justify them.
 - Do not create one module per file.
 - Do not dump source code into explanations.
 - Do not reproduce entire files.

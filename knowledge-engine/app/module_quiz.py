@@ -21,7 +21,7 @@ from typing import Any
 from app.db import get_module_progress_collection
 from app.generate_learning_path import generate_learning_path
 
-QUIZ_QUESTION_COUNT = 2
+QUIZ_QUESTION_COUNT = 5
 
 
 def _deterministic_index(seed: str, size: int) -> int:

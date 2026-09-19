@@ -68,7 +68,30 @@ export function personalizeModules(profile: SkillProfile): ModulePlan[] {
 
 export function buildTwin(profile: SkillProfile, assessmentComplete = false): TwinSnapshot {
   const values = Object.values(profile.skills);
-  const overall = Math.round(values.reduce((sum, value) => sum + value, 0) / values.length + (assessmentComplete ? 8 : 0));
+  const overall = Math.min(
+    100,
+    Math.round(
+      values.reduce((sum, value) => sum + value, 0) /
+        values.length +
+        (assessmentComplete ? 8 : 0),
+    ),
+  );
+
+  const gaps = [
+    { label: "APIs", score: profile.skills.APIs, delta: "+18% target" },
+    { label: "Architecture", score: profile.skills.Architecture, delta: "+12% target" },
+    { label: "Database", score: profile.skills.Database, delta: "+18% target" },
+    { label: "Security", score: profile.skills.Security, delta: "+18% target" },
+  ]
+    .filter((item) => item.score < 70)
+    .slice(0, 2);
+
+  gaps.push({
+    label: "Team vocabulary",
+    score: 57 + (assessmentComplete ? 13 : 0),
+    delta: assessmentComplete ? "+13% this path" : "Context Signal",
+  });
+
   return {
     overall,
     strengths: [
@@ -76,11 +99,7 @@ export function buildTwin(profile: SkillProfile, assessmentComplete = false): Tw
       { label: "Architecture", score: Math.min(96, profile.skills.Architecture + (assessmentComplete ? 5 : 0)), color: "#9eaaff" },
       { label: "Security", score: Math.min(96, profile.skills.Security + (assessmentComplete ? 3 : 0)), color: "#e8a2f7" },
     ],
-    gaps: [
-      { label: profile.skills.Database < profile.skills.Security ? "Database" : "Security", score: Math.min(profile.skills.Database, profile.skills.Security), delta: "+18% target" },
-      { label: "Architecture", score: profile.skills.Architecture, delta: "+12% target" },
-      { label: "Team vocabulary", score: 57 + (assessmentComplete ? 13 : 0), delta: assessmentComplete ? "+13% this path" : "Context Signal" },
-    ],
+    gaps,
     evolution: [
       { label: "Repository context", before: 42, after: Math.min(92, profile.skills.Architecture + (assessmentComplete ? 20 : 12)) },
       { label: "Service boundaries", before: 36, after: Math.min(88, profile.skills.APIs + (assessmentComplete ? 13 : 7)) },

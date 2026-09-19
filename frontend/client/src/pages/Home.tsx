@@ -56,6 +56,7 @@ import {
   uploadDocument,
   getProjectDocuments,
   getDeveloperTwin,
+  createDeveloperTwinFromResume,
   getKnowledgeGaps,
   getNotifications,
   createNotification,
@@ -1167,13 +1168,27 @@ function Landing({
                   (role ?? "developer") ===
                   "developer"
                 ) {
-                  onProfileCreate(
+                  const profile =
                     parseSkillProfile(
                       profileFile?.name ??
                         "skill-profile.pdf",
                       name || "Maya Chen",
-                    ),
-                  );
+                    );
+
+                  onProfileCreate(profile);
+
+                  if (profileFile) {
+                    void createDeveloperTwinFromResume(
+                      "dev-001",
+                      "fastapi-101",
+                      profileFile,
+                    ).catch((error) => {
+                      console.warn(
+                        "Resume Twin upload failed; keeping local profile.",
+                        error,
+                      );
+                    });
+                  }
                 }
 
                 onEnter(role ?? "developer");
@@ -2194,7 +2209,7 @@ function LearningPath({
     triggerBob("wrong");
   }
 
-  if (activeQuestion < questions.length - 1) {
+  if (isCorrect && activeQuestion < questions.length - 1) {
     window.setTimeout(() => {
       setActiveQuestion((current) => current + 1);
       setQuizAnswer(null);
@@ -2212,13 +2227,11 @@ function LearningPath({
     setCompletionReady(isFinalModule);
     setJourneyComplete(isFinalModule);
 
-    if (!isFinalModule) {
-      setCompletedModules((current) =>
-        current.includes(selectedModule)
-          ? current
-          : [...current, selectedModule],
-      );
-    }
+    setCompletedModules((current) =>
+      current.includes(selectedModule)
+        ? current
+        : [...current, selectedModule],
+    );
   } else {
     setQuizPassed(false);
     setShowHint(false);

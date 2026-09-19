@@ -167,3 +167,18 @@ def get_developer_twin(
     response.raise_for_status()
 
     return response.json()
+
+def upload_developer_profile(file_bytes: bytes, filename: str):
+    response = requests.post(
+        f"{KNOWLEDGE_ENGINE_URL}/developer-profile/upload",
+        files={
+            "file": (
+                filename,
+                file_bytes,
+            )
+        },
+        timeout=60,
+    )
+
+    response.raise_for_status()
+    return response.json()

@@ -201,6 +201,34 @@ export type DeveloperTwinResponse = {
   developer_twin: DeveloperTwin | null;
 };
 
+export async function createDeveloperTwinFromResume(
+  developerId: string,
+  projectId: string,
+  file: File,
+) {
+  const formData = new FormData();
+  formData.append("developer_id", developerId);
+  formData.append("project_id", projectId);
+  formData.append("file", file);
+
+  const response = await fetch(
+    `${DEVORA_API_URL}/developer-twin/from-resume`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(
+      detail || `Developer profile upload failed (${response.status})`,
+    );
+  }
+
+  return response.json() as Promise<DeveloperTwinResponse>;
+}
+
 export function createDeveloperTwin(
   developerId: string,
   projectId: string,
