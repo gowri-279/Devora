@@ -365,7 +365,6 @@ through MCP for project knowledge retrieval.
 
 DEVORA consists of independently running application services plus an MCP server.
 
-```text
                          Browser / User
                               │
                               │ HTTP :3000
@@ -397,14 +396,21 @@ DEVORA consists of independently running application services plus an MCP server
                 ┌────────────┐
                 │ MongoDB    │
                 │ Atlas      │
+                └─────┬──────┘
+                      │
+                      │ project context
+                      ▼
+                ┌───────────────┐
+                │ AI Integration│
+                │ :8002         │
+                └───────┬───────┘
+                        │
+                        │ Bob Shell CLI
+                        ▼
+                ┌────────────┐
+                │ IBM Bob    │
+                │ CLI / MCP  │
                 └────────────┘
-                      │
-                      │
-                ┌─────▼─────┐
-                │ IBM Bob   │
-                │ CLI / MCP │
-                └───────────┘
-```
 
 ### Services
 
