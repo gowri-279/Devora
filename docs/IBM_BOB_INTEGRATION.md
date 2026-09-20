@@ -14,7 +14,7 @@ DEVORA integrates **IBM Bob** (IBM's AI assistant platform, accessed via the Bob
 
 IBM Bob is invoked through the **Bob Shell CLI** (`bob run`) via a Python subprocess call. This is intentional — it gives DEVORA full access to IBM Bob's reasoning capabilities without requiring a custom REST API integration, and keeps the integration portable across environments.
 
-**Service:** `ai-integration/` (FastAPI, port 8002)  
+**Service:** `ai-integration/` (FastAPI, port 8002)
 **Client:** [`ai-integration/app/services/ibm_bob_client.py`](ai-integration/app/services/ibm_bob_client.py)
 
 ```python
@@ -36,10 +36,11 @@ result = subprocess.run(
 ```
 
 Key flags used:
-- `--format json` — structured output for reliable parsing
-- `--mode ask` — constrains Bob to answering, no tool use
-- `--max-turns 1` — single-turn, deterministic response
-- `--disable-tool-groups` — prevents Bob from invoking filesystem, edit, or MCP tools (security + speed)
+
+* `--format json` — structured output for reliable parsing
+* `--mode ask` — constrains Bob to answering, no tool use
+* `--max-turns 1` — single-turn, deterministic response
+* `--disable-tool-groups` — prevents Bob from invoking filesystem, edit, or MCP tools (security + speed)
 
 ---
 
@@ -47,7 +48,7 @@ Key flags used:
 
 **Flow:**
 
-```
+```text
 Developer asks question
      ↓
 Backend (/api/ask-bob)
@@ -63,6 +64,7 @@ Answer returned to developer with source file + confidence
 ```
 
 **Prompt structure** ([`ai-integration/app/services/bob_service.py`](ai-integration/app/services/bob_service.py)):
+
 ```
 You are DEVORA, an AI onboarding assistant for software developers.
 Answer the developer's question using ONLY the provided project context.
@@ -75,7 +77,9 @@ Retrieved project context:
   ...
 ```
 
-**Why this matters:** IBM Bob never answers from generic training data. Every answer is grounded in the actual uploaded project documentation and source code, preventing hallucination.
+The retrieved project context can contain information from **repository source files and administrator-uploaded project/company documentation** that has been ingested into the Knowledge Engine.
+
+**Why this matters:** DEVORA instructs IBM Bob to answer using only the retrieved project context and not introduce unsupported information. This design helps reduce unsupported or hallucinated responses.
 
 ---
 
@@ -85,7 +89,7 @@ After a developer completes the **5-question open-ended assessment**, IBM Bob ev
 
 **Flow:**
 
-```
+```text
 Developer submits 5 answers
      ↓
 Backend retrieves context per domain (APIs, Architecture, Database, Security)
@@ -111,10 +115,13 @@ Developer Twin updated with new skill scores
 **Prompt builder:** [`ai-integration/app/services/assessment_prompt.py`](ai-integration/app/services/assessment_prompt.py)
 
 IBM Bob is instructed to:
-- Score each domain 0–100 based on the quality of the developer's reasoning
-- Provide human-readable evidence for each score
-- Identify cross-domain reasoning patterns
-- Not use generic knowledge — only what is grounded in the retrieved context
+
+* Score each domain 0–100 based on the quality of the developer's reasoning
+* Provide human-readable evidence for each score
+* Identify cross-domain reasoning patterns
+* Not use generic knowledge — only what is grounded in the retrieved context
+
+The retrieved context may include relevant repository source files and administrator-uploaded project/company documentation from the project knowledge base.
 
 **Robust JSON parsing:** [`ai-integration/app/services/assessment_evaluator.py`](ai-integration/app/services/assessment_evaluator.py) handles Markdown fences, multi-line JSON, and partial responses gracefully.
 
@@ -126,7 +133,7 @@ When a repository is uploaded, DEVORA generates a **personalized learning path**
 
 **Flow:**
 
-```
+```text
 Repository ingested → Knowledge Engine builds repository intelligence
      ↓
 Knowledge Engine calls AI Integration (/generate-curriculum)
@@ -153,10 +160,13 @@ Curriculum stored and served to the developer as their personalized learning pat
 **Prompt:** [`ai-integration/app/services/curriculum_service.py`](ai-integration/app/services/curriculum_service.py)
 
 IBM Bob is instructed to:
-- Identify architectural concepts (not just file listings)
-- Order modules from foundational to advanced
-- Cite exact source files for every lesson
-- Not invent frameworks, APIs, or architecture beyond what the evidence shows
+
+* Identify architectural concepts (not just file listings)
+* Order modules from foundational to advanced
+* Cite exact source files for every lesson
+* Not invent frameworks, APIs, or architecture beyond what the evidence shows
+
+The Knowledge Engine evidence chunks used for curriculum generation can include **administrator-uploaded project/company documentation as well as repository-derived knowledge**.
 
 ---
 
@@ -188,11 +198,11 @@ Set `DEVORA_BOB_MODE=live` and provide `BOB_API_KEY` to activate real IBM Bob in
 
 ## Configuration
 
-| Environment Variable | Purpose | Default |
-|---|---|---|
-| `BOB_API_KEY` | IBM Bob authentication key | (none) |
-| `IBM_BOB_API_KEY` | Backward-compatible alias | Falls back to `BOB_API_KEY` |
-| `DEVORA_BOB_MODE` | `mock` or `live` | `mock` |
+| Environment Variable | Purpose                    | Default                     |
+| -------------------- | -------------------------- | --------------------------- |
+| `BOB_API_KEY`        | IBM Bob authentication key | (none)                      |
+| `IBM_BOB_API_KEY`    | Backward-compatible alias  | Falls back to `BOB_API_KEY` |
+| `DEVORA_BOB_MODE`    | `mock` or `live`           | `mock`                      |
 
 Set these in the root `.env` file (see `.env.example`).
 
@@ -200,13 +210,13 @@ Set these in the root `.env` file (see `.env.example`).
 
 ## Files Reference
 
-| File | Role |
-|---|---|
-| `ai-integration/app/services/ibm_bob_client.py` | Core Bob Shell subprocess client |
-| `ai-integration/app/services/bob_service.py` | Q&A prompt builder + response handler |
-| `ai-integration/app/services/assessment_evaluator.py` | Assessment evaluation pipeline |
-| `ai-integration/app/services/assessment_prompt.py` | Assessment prompt builder |
-| `ai-integration/app/services/curriculum_service.py` | Curriculum generation pipeline |
-| `ai-integration/app/routes/bob.py` | FastAPI routes exposing all three endpoints |
-| `ai-integration/app/config.py` | `BOB_API_KEY`, `DEVORA_BOB_MODE` config |
-| `devora-mcp/server.py` | MCP server exposing DEVORA to IBM Bob |
+| File                                                  | Role                                        |
+| ----------------------------------------------------- | ------------------------------------------- |
+| `ai-integration/app/services/ibm_bob_client.py`       | Core Bob Shell subprocess client            |
+| `ai-integration/app/services/bob_service.py`          | Q&A prompt builder + response handler       |
+| `ai-integration/app/services/assessment_evaluator.py` | Assessment evaluation pipeline              |
+| `ai-integration/app/services/assessment_prompt.py`    | Assessment prompt builder                   |
+| `ai-integration/app/services/curriculum_service.py`   | Curriculum generation pipeline              |
+| `ai-integration/app/routes/bob.py`                    | FastAPI routes exposing all three endpoints |
+| `ai-integration/app/config.py`                        | `BOB_API_KEY`, `DEVORA_BOB_MODE` config     |
+| `devora-mcp/server.py`                                | MCP server exposing DEVORA to IBM Bob       |
