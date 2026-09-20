@@ -52,6 +52,7 @@ The administrator:
 
 * Submits the project GitHub repository.
 * Provides project documentation and knowledge sources.
+* Uploads project/company documents when available.
 * Initiates project/repository ingestion.
 * Uses project-level analytics such as the Team Knowledge Heatmap.
 
@@ -282,39 +283,41 @@ The MCP server allows external MCP-compatible AI environments to retrieve releva
 
 # 4. Data Flow
 
-## 4.1 Project Repository Onboarding
+## 4.1 Project Knowledge Onboarding
 
-The **administrator** submits the project GitHub repository.
+The **administrator** can provide both the project GitHub repository and project/company documentation.
 
 ```text
-Admin
-  │
-  ▼
-Project GitHub Repository
-  │
-  ▼
-Backend API :8000
-  │
-  ▼
-Repository Parser :8003
-  │
-  ▼
-Repository Intelligence
-  │
-  ▼
-Knowledge Engine :8001
-  │
-  ├── Document Processing
-  ├── Chunking
-  ├── Embeddings
-  └── Vector Storage
-  │
-  ▼
-Project Knowledge Base
-  │
-  ▼
-Personalized Learning Path
+                         Admin
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+     Project GitHub Repository   Project/Company Documents
+              │                         │
+              ▼                         ▼
+     Repository Parser :8003     Document Ingestion
+              │                         │
+              ▼                         │
+     Repository Intelligence            │
+              │                         │
+              └────────────┬────────────┘
+                           ▼
+                  Knowledge Engine :8001
+                           │
+                           ├── Document Processing
+                           ├── Chunking
+                           ├── Embeddings
+                           └── Vector Storage
+                           │
+                           ▼
+                  Project Knowledge Base
+                           │
+                           ▼
+                  Personalized Learning Path
 ```
+
+Both repository content and administrator-uploaded project/company documentation can therefore become part of the searchable project knowledge base.
 
 ---
 
@@ -389,6 +392,8 @@ IBM Bob
         ▼
 Grounded Answer
 ```
+
+Relevant project knowledge may include repository source code and administrator-uploaded project/company documentation.
 
 Bob is designed to answer questions using relevant DEVORA project knowledge rather than relying only on generic model knowledge.
 
@@ -793,7 +798,7 @@ The frontend does **not directly communicate with the internal services**.
 # 22. Knowledge Ingestion Pipeline
 
 ```text
-Project Repository / Documents
+Project Repository / Uploaded Project Documents
              │
              ▼
       Document Extraction
@@ -866,26 +871,32 @@ Developer Twin Updates
 ```text
 Admin
   │
-  ▼
-Project GitHub Repository
-  │
-  ▼
-Repository Parser
-  │
-  ▼
-Repository Intelligence
-  │
-  ▼
-Knowledge Engine
-  │
-  ▼
-Project Knowledge Base
-  │
-  ▼
-Developer + Project Context
-  │
-  ▼
-Personalized Onboarding
+  ├───────────────┐
+  │               │
+  ▼               ▼
+Project GitHub    Uploaded Project/
+Repository        Company Documents
+  │               │
+  ▼               ▼
+Repository        Document
+Parser            Ingestion
+  │               │
+  ▼               │
+Repository        │
+Intelligence      │
+  │               │
+  └───────┬───────┘
+          ▼
+   Knowledge Engine
+          │
+          ▼
+   Project Knowledge Base
+          │
+          ▼
+ Developer + Project Context
+          │
+          ▼
+ Personalized Onboarding
 ```
 
 ---
@@ -1175,10 +1186,12 @@ DEVORA's knowledge sources include:
 
 * Project documentation
 * Project repository source code submitted by the Administrator
-* Uploaded project documents
+* Uploaded project/company documents
 * Developer skill sets/resumes
 * Assessment results
 * Learning activity
+
+Project documentation and uploaded project/company documents are ingested into the project knowledge pipeline alongside repository source content.
 
 The Developer Twin follows:
 
@@ -1246,15 +1259,18 @@ Mock/demo data remains present in selected frontend presentation areas where req
 ```text
                          ADMIN
                            │
-                           ▼
-                Project GitHub Repository
-                           │
-                           ▼
-                  Repository Parser
-                           │
-                           ▼
-                Repository Intelligence
-                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+   Project GitHub Repository   Project/Company Documents
+              │                         │
+              ▼                         ▼
+     Repository Parser          Document Ingestion
+              │                         │
+              ▼                         │
+     Repository Intelligence            │
+              │                         │
+              └────────────┬────────────┘
                            ▼
                     Knowledge Engine
                            │
@@ -1294,5 +1310,6 @@ DEVELOPER ──► Skill Set / Resume
                                    │
                                    ▼
                            IBM Bob Assistance
-``` 
+```
+
 DEVORA therefore combines **project intelligence** with **developer intelligence** to create a personalized, project-aware onboarding experience rather than providing a generic learning platform.
