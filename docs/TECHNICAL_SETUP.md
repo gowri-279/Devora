@@ -1294,6 +1294,5 @@ DEVELOPER ──► Skill Set / Resume
                                    │
                                    ▼
                            IBM Bob Assistance
-```
-DEVORA therefore combines project intelligence with developer intelligence to create a personalized, project-aware onboarding experience rather than providing a generic learning platform.
+``` 
 DEVORA therefore combines **project intelligence** with **developer intelligence** to create a personalized, project-aware onboarding experience rather than providing a generic learning platform.
