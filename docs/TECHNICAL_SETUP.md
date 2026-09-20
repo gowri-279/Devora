@@ -1,13 +1,14 @@
-DEVORA — Complete Technical Setup Guide
+# DEVORA — Complete Technical Setup Guide
 
-«This document provides a complete overview of the DEVORA architecture, technology stack, dependencies, environment configuration, and commands required to install and run the system from scratch.»
+> This document provides a complete overview of the DEVORA architecture, technology stack, dependencies, environment configuration, and commands required to install and run the system from scratch.
 
 ---
 
-1. Project Architecture
+# 1. Project Architecture
 
-DEVORA consists of five independently running application services, plus one MCP server process.
+DEVORA consists of **five independently running application services**, plus one MCP server process.
 
+```text
                          ┌─────────────────────┐
                          │   React Frontend    │
                          │      Port 3000      │
@@ -37,36 +38,38 @@ DEVORA consists of five independently running application services, plus one MCP
                     │   devora-mcp  │
                     │   MCP Server  │
                     └───────────────┘
+```
 
-The services are independently runnable. The startup order described later is a recommended order for convenience, not a strict dependency chain.
+The services are independently runnable. The startup order described later is a **recommended order for convenience**, not a strict dependency chain.
 
-Responsibility Split
+## Responsibility Split
 
 DEVORA separates project intelligence from developer intelligence.
 
-Administrator
+### Administrator
 
 The administrator:
 
-- Submits the project GitHub repository.
-- Provides project documentation and knowledge sources.
-- Initiates project/repository ingestion.
-- Uses project-level analytics such as the Team Knowledge Heatmap.
+* Submits the project GitHub repository.
+* Provides project documentation and knowledge sources.
+* Initiates project/repository ingestion.
+* Uses project-level analytics such as the Team Knowledge Heatmap.
 
-Developer
+### Developer
 
 The developer:
 
-- Uploads their existing skill set/resume.
-- Initializes their Developer Twin.
-- Completes assessments.
-- Follows the personalized learning path.
-- Interacts with DEVORA and Bob during onboarding.
+* Uploads their existing skill set/resume.
+* Initializes their Developer Twin.
+* Completes assessments.
+* Follows the personalized learning path.
+* Interacts with DEVORA and Bob during onboarding.
 
-DEVORA
+### DEVORA
 
 DEVORA combines:
 
+```text
 Project Intelligence
         +
 Developer Intelligence
@@ -74,193 +77,216 @@ Developer Intelligence
 Developer Twin
         ↓
 Personalized Project Onboarding
+```
 
 ---
 
-2. Core Components
+# 2. Core Components
 
-2.1 Frontend
+## 2.1 Frontend
 
-Technology: Vite + React + TypeScript
+**Technology:** Vite + React + TypeScript
 
-Port: "3000"
+**Port:** `3000`
 
 The frontend provides:
 
-- Project onboarding interface
-- Administrator repository/project submission
-- Developer dashboard
-- Developer Twin interface
-- Skill-set/resume upload
-- Personalized learning path
-- Module learning and assessments
-- Team Knowledge Heatmap
-- Bob assistant interface
-- Notifications and progress tracking
+* Project onboarding interface
+* Administrator repository/project submission
+* Developer dashboard
+* Developer Twin interface
+* Skill-set/resume upload
+* Personalized learning path
+* Module learning and assessments
+* Team Knowledge Heatmap
+* Bob assistant interface
+* Notifications and progress tracking
 
-The frontend communicates only with the Backend API.
+The frontend communicates **only with the Backend API**.
 
 ---
 
-2.2 Backend API
+## 2.2 Backend API
 
-Technology: FastAPI
+**Technology:** FastAPI
 
-Port: "8000"
+**Port:** `8000`
 
 The Backend acts as the main API gateway.
 
 Responsibilities include:
 
-- Frontend API handling
-- Repository onboarding orchestration
-- Communication with the Knowledge Engine
-- Communication with AI Integration
-- Communication with Repository Parser
-- Developer Twin routes
-- Learning-path requests
-- Assessment-related operations
-- Project and developer data coordination
+* Frontend API handling
+* Repository onboarding orchestration
+* Communication with the Knowledge Engine
+* Communication with AI Integration
+* Communication with Repository Parser
+* Developer Twin routes
+* Learning-path requests
+* Assessment-related operations
+* Project and developer data coordination
 
 ---
 
-2.3 Knowledge Engine
+## 2.3 Knowledge Engine
 
-Technology: FastAPI + MongoDB Atlas + Sentence Transformers
+**Technology:** FastAPI + MongoDB Atlas + Sentence Transformers
 
-Port: "8001"
+**Port:** `8001`
 
 The Knowledge Engine is the core intelligence and knowledge-processing layer.
 
 Responsibilities include:
 
-- Document ingestion
-- Text extraction
-- Text chunking
-- Embedding generation
-- Semantic search
-- MongoDB Atlas Vector Search
-- Knowledge-gap identification
-- Learning-path generation
-- Module quizzes
-- Learning progress
-- Developer Twin data
-- Knowledge retrieval for Bob
+* Document ingestion
+* Text extraction
+* Text chunking
+* Embedding generation
+* Semantic search
+* MongoDB Atlas Vector Search
+* Knowledge-gap identification
+* Learning-path generation
+* Module quizzes
+* Learning progress
+* Developer Twin data
+* Knowledge retrieval for Bob
 
-Embedding Model
+### Embedding Model
 
+```text
 all-MiniLM-L6-v2
+```
 
 Embedding dimension:
 
+```text
 384
+```
 
 Vector similarity:
 
+```text
 Cosine similarity
+```
 
 MongoDB Atlas Vector Search index:
 
+```text
 vector_index
+```
 
 Vector field:
 
+```text
 embedding
+```
 
 ---
 
-2.4 AI Integration
+## 2.4 AI Integration
 
-Technology: FastAPI + IBM Bob integration
+**Technology:** FastAPI + IBM Bob integration
 
-Port: "8002"
+**Port:** `8002`
 
 The AI Integration service handles AI-powered functionality including:
 
-- IBM Bob interaction
-- Grounded question answering
-- Assessment evaluation
-- Curriculum generation
-- AI-assisted learning content generation
+* IBM Bob interaction
+* Grounded question answering
+* Assessment evaluation
+* Curriculum generation
+* AI-assisted learning content generation
 
 DEVORA supports both live and mock Bob modes.
 
+```env
 DEVORA_BOB_MODE=mock
+```
 
 or:
 
+```env
 DEVORA_BOB_MODE=live
+```
 
 ---
 
-2.5 Repository Parser
+## 2.5 Repository Parser
 
-Technology: Python + GitPython + API service
+**Technology:** Python + GitPython + API service
 
-Port: "8003"
+**Port:** `8003`
 
-The Repository Parser analyzes project repositories submitted by the administrator.
+The Repository Parser analyzes **project repositories submitted by the administrator**.
 
 It extracts repository intelligence such as:
 
-- Repository structure
-- Source files
-- Project artifacts
-- Code-related information
-- Project metadata
+* Repository structure
+* Source files
+* Project artifacts
+* Code-related information
+* Project metadata
 
 The extracted repository intelligence is passed into DEVORA's knowledge pipeline.
 
-Dependencies
+### Dependencies
 
 Dependencies are declared in:
 
+```text
 repository-parser/requirements.txt
+```
 
-"GitPython" is currently listed for repository analysis.
+`GitPython` is currently listed for repository analysis.
 
 ---
 
-2.6 DEVORA MCP Server
+## 2.6 DEVORA MCP Server
 
 DEVORA includes an MCP server called:
 
+```text
 devora-mcp
+```
 
 It exposes DEVORA knowledge retrieval capabilities to MCP-compatible environments.
 
 Primary tool:
 
+```text
 search_devora_knowledge
+```
 
 The MCP server allows external MCP-compatible AI environments to retrieve relevant DEVORA knowledge through the semantic knowledge layer.
 
 ---
 
-3. Technology Stack
+# 3. Technology Stack
 
-Layer| Technology
-Frontend| React + TypeScript + Vite
-Backend| FastAPI
-Knowledge Engine| FastAPI + Sentence Transformers
-AI Integration| FastAPI + IBM Bob
-Repository Parser| Python + GitPython
-Database| MongoDB Atlas
-Vector Search| MongoDB Atlas Vector Search
-Embeddings| all-MiniLM-L6-v2
-MCP| Model Context Protocol
-Document Parsing| PyPDF + python-docx
-Text Splitting| LangChain Text Splitters
-Repository Analysis| GitPython
+| Layer               | Technology                      |
+| ------------------- | ------------------------------- |
+| Frontend            | React + TypeScript + Vite       |
+| Backend             | FastAPI                         |
+| Knowledge Engine    | FastAPI + Sentence Transformers |
+| AI Integration      | FastAPI + IBM Bob               |
+| Repository Parser   | Python + GitPython              |
+| Database            | MongoDB Atlas                   |
+| Vector Search       | MongoDB Atlas Vector Search     |
+| Embeddings          | all-MiniLM-L6-v2                |
+| MCP                 | Model Context Protocol          |
+| Document Parsing    | PyPDF + python-docx             |
+| Text Splitting      | LangChain Text Splitters        |
+| Repository Analysis | GitPython                       |
 
 ---
 
-4. Data Flow
+# 4. Data Flow
 
-4.1 Project Repository Onboarding
+## 4.1 Project Repository Onboarding
 
-The administrator submits the project GitHub repository.
+The **administrator** submits the project GitHub repository.
 
+```text
 Admin
   │
   ▼
@@ -288,13 +314,15 @@ Project Knowledge Base
   │
   ▼
 Personalized Learning Path
+```
 
 ---
 
-5. Developer Twin Flow
+# 5. Developer Twin Flow
 
 The Developer Twin is initialized from the developer's existing skill set.
 
+```text
 Developer Skill Set / Resume
             │
             ▼
@@ -310,15 +338,17 @@ Developer Skill Set / Resume
             ├── Assessment Results
             ├── Knowledge Gaps
             └── Learning Progress
+```
 
 The Developer Twin evolves as the developer progresses through onboarding.
 
 ---
 
-6. Personalized Learning Path
+# 6. Personalized Learning Path
 
 DEVORA generates a personalized learning path by combining developer intelligence with project intelligence.
 
+```text
 Developer Skill Profile
           +
 Developer Twin
@@ -330,13 +360,15 @@ Project Knowledge
 Knowledge Gaps
           ↓
 Personalized Learning Path
+```
 
 This allows DEVORA to identify what the developer already knows and what they need to learn specifically for the target project.
 
 ---
 
-7. Ask Bob Flow
+# 7. Ask Bob Flow
 
+```text
 Developer Question
         │
         ▼
@@ -356,13 +388,15 @@ IBM Bob
         │
         ▼
 Grounded Answer
+```
 
 Bob is designed to answer questions using relevant DEVORA project knowledge rather than relying only on generic model knowledge.
 
 ---
 
-8. Assessment Flow
+# 8. Assessment Flow
 
+```text
 Developer
     │
     ▼
@@ -385,117 +419,131 @@ Developer Twin Update
     │
     ▼
 Learning Path Update
+```
 
 Assessment results contribute to the evolving Developer Twin and personalized learning experience.
 
 ---
 
-9. MongoDB Atlas
+# 9. MongoDB Atlas
 
 Database:
 
+```text
 devora
+```
 
 Core collections include:
 
-Collection| Purpose
-"knowledge_chunks"| Chunked project/document knowledge and embeddings
-"raw_documents"| Original ingested document information
-"projects_meta"| Project metadata
-"knowledge_gaps"| Identified knowledge gaps
-"developer_twins"| Developer Twin information
-"module_progress"| Developer learning progress
-"assessments"| Assessment data and results
-"projects"| Project information
-"notifications"| Developer notifications
-"users"| User information
-"teams"| Team information
+| Collection         | Purpose                                           |
+| ------------------ | ------------------------------------------------- |
+| `knowledge_chunks` | Chunked project/document knowledge and embeddings |
+| `raw_documents`    | Original ingested document information            |
+| `projects_meta`    | Project metadata                                  |
+| `knowledge_gaps`   | Identified knowledge gaps                         |
+| `developer_twins`  | Developer Twin information                        |
+| `module_progress`  | Developer learning progress                       |
+| `assessments`      | Assessment data and results                       |
+| `projects`         | Project information                               |
+| `notifications`    | Developer notifications                           |
+| `users`            | User information                                  |
+| `teams`            | Team information                                  |
 
 ---
 
-10. MongoDB Vector Search
+# 10. MongoDB Vector Search
 
-The "knowledge_chunks" collection uses MongoDB Atlas Vector Search.
+The `knowledge_chunks` collection uses MongoDB Atlas Vector Search.
 
 Configuration:
 
+```text
 Index: vector_index
 Field: embedding
 Dimensions: 384
 Similarity: cosine
 Model: all-MiniLM-L6-v2
+```
 
 DEVORA can also use an in-memory cosine-similarity fallback when required.
 
 ---
 
-11. API Endpoints
+# 11. API Endpoints
 
-Backend — Port 8000
+## Backend — Port 8000
 
-Endpoint| Purpose
-"POST /api/upload/repository"| Admin submits a project GitHub repository for analysis and ingestion
-"GET /api/learning-path"| Retrieves/generates a personalized learning path
-"/api/developer-twin/..."| Developer Twin operations
-"/api/assessment/..."| Assessment operations
-"/api/projects/..."| Project operations
-"/api/notifications/..."| Notification operations
+| Endpoint                      | Purpose                                                              |
+| ----------------------------- | -------------------------------------------------------------------- |
+| `POST /api/upload/repository` | Admin submits a project GitHub repository for analysis and ingestion |
+| `GET /api/learning-path`      | Retrieves/generates a personalized learning path                     |
+| `/api/developer-twin/...`     | Developer Twin operations                                            |
+| `/api/assessment/...`         | Assessment operations                                                |
+| `/api/projects/...`           | Project operations                                                   |
+| `/api/notifications/...`      | Notification operations                                              |
 
-«Endpoint groups represented with "..." indicate route families rather than a single endpoint.»
+> Endpoint groups represented with `...` indicate route families rather than a single endpoint.
 
 ---
 
-Knowledge Engine — Port 8001
+## Knowledge Engine — Port 8001
 
 The Knowledge Engine provides APIs for:
 
-- Knowledge ingestion
-- Semantic search
-- Learning-path generation
-- Module quizzes
-- Knowledge-gap handling
-- Developer Twin data
-- Progress tracking
+* Knowledge ingestion
+* Semantic search
+* Learning-path generation
+* Module quizzes
+* Knowledge-gap handling
+* Developer Twin data
+* Progress tracking
 
 Representative modules include:
 
+```text
 ingest_api.py
 generate_learning_path.py
 module_quiz.py
+```
 
 ---
 
-AI Integration — Port 8002
+## AI Integration — Port 8002
 
 The AI Integration service provides APIs for:
 
-- Bob interaction
-- Curriculum generation
-- Assessment evaluation
-- AI-assisted responses
+* Bob interaction
+* Curriculum generation
+* Assessment evaluation
+* AI-assisted responses
 
 Important service:
 
+```text
 curriculum_service.py
+```
 
 ---
 
-Repository Parser — Port 8003
+## Repository Parser — Port 8003
 
 Representative endpoints:
 
+```text
 GET /
 POST /repositories/analyse
 GET /artifacts/{artifact_id}
+```
 
 ---
 
-12. Environment Variables
+# 12. Environment Variables
 
-Create a root ".env" file containing values appropriate for the deployment environment.
+Create a root `.env` file containing values appropriate for the deployment environment.
 
 Example:
 
+```env
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/
 MONGODB_DATABASE=devora
 MONGODB_COLLECTION=knowledge_chunks
@@ -511,102 +559,136 @@ BOB_API_KEY=<your-key>
 DEVORA_BOB_MODE=mock
 
 VITE_DEVORA_API_URL=http://127.0.0.1:8000/api
+```
 
 Do not commit real credentials, API keys, or MongoDB credentials to GitHub.
 
 ---
 
-13. Frontend Environment
+# 13. Frontend Environment
 
 The frontend uses:
 
+```env
 VITE_DEVORA_API_URL=http://127.0.0.1:8000/api
+```
 
 This ensures that frontend requests are routed through the Backend API.
 
 ---
 
-14. Installation
+# 14. Installation
 
-14.1 Clone the Repository
+## 14.1 Clone the Repository
 
+```bash
 git clone <repository-url>
 cd <repository-folder>
+```
 
 ---
 
-14.2 Configure Environment
+## 14.2 Configure Environment
 
 Linux/macOS:
 
+```bash
 cp .env.example .env
+```
 
 Windows PowerShell:
 
+```powershell
 Copy-Item .env.example .env
+```
 
-Update the ".env" values as required.
+Update the `.env` values as required.
 
 ---
 
-15. Backend Setup
+# 15. Backend Setup
 
 Navigate to the backend:
 
+```bash
 cd backend
+```
 
 Create/activate a virtual environment:
 
+```bash
 python -m venv venv
+```
 
 Linux/macOS:
 
+```bash
 source venv/bin/activate
+```
 
 Windows:
 
+```powershell
 venv\Scripts\activate
+```
 
 Install dependencies:
 
+```bash
 pip install -r requirements.txt
+```
 
 Run:
 
+```bash
 uvicorn app.main:app --reload --port 8000
+```
 
 ---
 
-16. Knowledge Engine Setup
+# 16. Knowledge Engine Setup
 
+```bash
 cd knowledge-engine
+```
 
 Create/activate the Python environment and install dependencies:
 
+```bash
 pip install -r requirements.txt
+```
 
 Run:
 
+```bash
 uvicorn app.main:app --reload --port 8001
+```
 
 ---
 
-17. AI Integration Setup
+# 17. AI Integration Setup
 
+```bash
 cd ai-integration
+```
 
 Install dependencies:
 
+```bash
 pip install -r requirements.txt
+```
 
 Run:
 
+```bash
 uvicorn app.main:app --reload --port 8002
+```
 
-AI Integration Dependencies
+### AI Integration Dependencies
 
 The service currently specifies:
 
+```text
 fastapi==0.115.12
 uvicorn==0.34.3
 pydantic==2.11.4
@@ -614,65 +696,83 @@ python-dotenv==1.1.0
 mcp==1.9.4
 httpx==0.28.1
 pytest==8.3.5
+```
 
 ---
 
-18. Repository Parser Setup
+# 18. Repository Parser Setup
 
+```bash
 cd repository-parser
+```
 
 Install the dependencies listed in:
 
+```text
 requirements.txt
+```
 
 For example:
 
+```bash
 pip install -r requirements.txt
+```
 
 Run the service according to the API entry point defined in the Repository Parser implementation.
 
-The repository parser uses "GitPython" for repository analysis.
+The repository parser uses `GitPython` for repository analysis.
 
 ---
 
-19. Frontend Setup
+# 19. Frontend Setup
 
 Navigate to:
 
+```bash
 cd frontend/client
+```
 
 Install dependencies:
 
+```bash
 npm install
+```
 
 Start the development server:
 
+```bash
 npm run dev
+```
 
 The frontend runs on:
 
+```text
 http://localhost:3000
+```
 
 ---
 
-20. Recommended Startup Order
+# 20. Recommended Startup Order
 
 The services can be started independently. For a complete local run, the following order is recommended:
 
+```text
 1. Repository Parser     :8003
 2. AI Integration        :8002
 3. Knowledge Engine      :8001
 4. Backend API           :8000
 5. Frontend              :3000
+```
 
 Again, this is a convenient startup sequence rather than a strict service dependency chain.
 
 ---
 
-21. Frontend API Architecture
+# 21. Frontend API Architecture
 
 DEVORA follows a controlled frontend-to-backend communication model.
 
+```text
 React Frontend
       │
       │ HTTP
@@ -684,13 +784,15 @@ Backend API :8000
       ├──────────► AI Integration :8002
       │
       └──────────► Repository Parser :8003
+```
 
-The frontend does not directly communicate with the internal services.
+The frontend does **not directly communicate with the internal services**.
 
 ---
 
-22. Knowledge Ingestion Pipeline
+# 22. Knowledge Ingestion Pipeline
 
+```text
 Project Repository / Documents
              │
              ▼
@@ -710,18 +812,20 @@ Project Repository / Documents
              │
              ▼
       Relevant Knowledge
+```
 
 Supported document processing includes:
 
-- PDF
-- DOCX
-- Text-based project artifacts
-- Repository source files
+* PDF
+* DOCX
+* Text-based project artifacts
+* Repository source files
 
 ---
 
-23. Developer Onboarding Pipeline
+# 23. Developer Onboarding Pipeline
 
+```text
 Developer
     │
     ▼
@@ -753,11 +857,13 @@ Quizzes / Assessments
     │
     ▼
 Developer Twin Updates
+```
 
 ---
 
-24. Project Onboarding Pipeline
+# 24. Project Onboarding Pipeline
 
+```text
 Admin
   │
   ▼
@@ -780,71 +886,83 @@ Developer + Project Context
   │
   ▼
 Personalized Onboarding
+```
 
 ---
 
-25. Team Knowledge Heatmap
+# 25. Team Knowledge Heatmap
 
 The Team Knowledge Heatmap provides an administrator-level view of team knowledge across project-relevant domains.
 
 Example domains include:
 
+```text
 APIs
 Architecture
 Database
 Security
+```
 
 The Heatmap is intended to help identify:
 
-- Team-wide knowledge gaps
-- Individual skill gaps
-- Areas requiring additional onboarding
-- Knowledge distribution across the team
+* Team-wide knowledge gaps
+* Individual skill gaps
+* Areas requiring additional onboarding
+* Knowledge distribution across the team
 
 Some frontend visualization/presentation data may still use mock/demo values depending on the current UI implementation.
 
 ---
 
-26. IBM Bob Integration
+# 26. IBM Bob Integration
 
 DEVORA integrates IBM Bob into the onboarding experience.
 
 Bob supports:
 
-- Contextual project questions
-- Knowledge-grounded responses
-- Assessment evaluation
-- Curriculum generation
-- Learning assistance
+* Contextual project questions
+* Knowledge-grounded responses
+* Assessment evaluation
+* Curriculum generation
+* Learning assistance
 
 DEVORA can run in:
 
-Mock Mode
+### Mock Mode
 
+```env
 DEVORA_BOB_MODE=mock
+```
 
 This allows development and demonstrations without a live Bob integration.
 
-Live Mode
+### Live Mode
 
+```env
 DEVORA_BOB_MODE=live
+```
 
 This uses the configured Bob integration and requires:
 
+```env
 BOB_API_KEY=<your-key>
+```
 
 ---
 
-27. MCP Integration
+# 27. MCP Integration
 
 DEVORA includes an MCP server for exposing its knowledge retrieval capabilities.
 
 Primary MCP tool:
 
+```text
 search_devora_knowledge
+```
 
 Conceptually:
 
+```text
 MCP Client
     │
     ▼
@@ -855,18 +973,21 @@ DEVORA Knowledge Retrieval
     │
     ▼
 Relevant Project Knowledge
+```
 
 This enables MCP-compatible AI systems to access project-specific DEVORA knowledge.
 
 ---
 
-28. Frontend API Layer
+# 28. Frontend API Layer
 
 The frontend centralizes API communication through its DEVORA API layer.
 
 Important file:
 
+```text
 frontend/client/src/lib/devoraApi.ts
+```
 
 This layer handles communication between the frontend and Backend API.
 
@@ -874,143 +995,161 @@ Mock/demo data is maintained separately where required.
 
 Important file:
 
+```text
 frontend/client/src/lib/devoraMockData.ts
+```
 
 ---
 
-29. Current Implementation Status
+# 29. Current Implementation Status
 
-Feature| Status
-Project repository ingestion| Implemented
-Repository intelligence extraction| Implemented
-Knowledge ingestion| Implemented
-MongoDB Atlas integration| Implemented
-Vector Search| Implemented
-Semantic knowledge search| Implemented
-Personalized learning path| Implemented
-Developer skill-set/resume initialization| Implemented
-Skill extraction| Implemented
-Developer Twin initialization| Implemented
-Assessment system| Implemented
-Assessment evaluation| Implemented
-Knowledge-gap identification| Implemented
-Learning modules| Implemented
-Module quizzes| Implemented
-Learning progress tracking| Implemented
-Notifications| Implemented
-IBM Bob integration| Implemented with mock/live modes
-MCP knowledge retrieval| Implemented
-Team Knowledge Heatmap| Partially integrated
-Admin automatic "Implement Module" action| Future enhancement
-
----
-
-30. Known Issues / Limitations
-
-Area| Status / Note
-AI Integration requirements| Encoding/dependency issue addressed
-Frontend API port| Previously corrected from "8001" to Backend "8000"
-MCP backend port| Port mismatch corrected
-MCP server| Indentation issue corrected
-Notifications| Database function issue corrected
-Backend Bob integration| Placeholder implementation corrected
-Bob availability| Mock fallback added
-Root ".env.example"| Added/configured
-Frontend ".env.example"| Added
-Developer Twin skill-set initialization| Implemented
-Developer Twin frontend presentation| Some mock/demo fallback logic may remain
-Team Heatmap frontend| Some mock/demo presentation data may remain
-Admin automatic module implementation| Future enhancement
+| Feature                                   | Status                           |
+| ----------------------------------------- | -------------------------------- |
+| Project repository ingestion              | Implemented                      |
+| Repository intelligence extraction        | Implemented                      |
+| Knowledge ingestion                       | Implemented                      |
+| MongoDB Atlas integration                 | Implemented                      |
+| Vector Search                             | Implemented                      |
+| Semantic knowledge search                 | Implemented                      |
+| Personalized learning path                | Implemented                      |
+| Developer skill-set/resume initialization | Implemented                      |
+| Skill extraction                          | Implemented                      |
+| Developer Twin initialization             | Implemented                      |
+| Assessment system                         | Implemented                      |
+| Assessment evaluation                     | Implemented                      |
+| Knowledge-gap identification              | Implemented                      |
+| Learning modules                          | Implemented                      |
+| Module quizzes                            | Implemented                      |
+| Learning progress tracking                | Implemented                      |
+| Notifications                             | Implemented                      |
+| IBM Bob integration                       | Implemented with mock/live modes |
+| MCP knowledge retrieval                   | Implemented                      |
+| Team Knowledge Heatmap                    | Partially integrated             |
+| Admin automatic "Implement Module" action | Future enhancement               |
 
 ---
 
-31. Important Project Files
+# 30. Known Issues / Limitations
 
-File| Purpose
-"README.md"| Project overview and setup
-"ai-integration/app/services/curriculum_service.py"| Curriculum generation
-"backend/app/routes/twin.py"| Developer Twin routes
-"backend/app/services/knowledge_engine.py"| Backend ↔ Knowledge Engine communication
-"frontend/client/src/lib/devoraApi.ts"| Frontend API layer
-"frontend/client/src/lib/devoraMockData.ts"| Frontend mock/demo data
-"frontend/client/src/pages/Home.tsx"| Main frontend page
-"knowledge-engine/app/generate_learning_path.py"| Learning-path generation
-"knowledge-engine/app/ingest_api.py"| Knowledge ingestion
-"knowledge-engine/app/module_quiz.py"| Module quiz functionality
+| Area                                    | Status / Note                                      |
+| --------------------------------------- | -------------------------------------------------- |
+| AI Integration requirements             | Encoding/dependency issue addressed                |
+| Frontend API port                       | Previously corrected from `8001` to Backend `8000` |
+| MCP backend port                        | Port mismatch corrected                            |
+| MCP server                              | Indentation issue corrected                        |
+| Notifications                           | Database function issue corrected                  |
+| Backend Bob integration                 | Placeholder implementation corrected               |
+| Bob availability                        | Mock fallback added                                |
+| Root `.env.example`                     | Added/configured                                   |
+| Frontend `.env.example`                 | Added                                              |
+| Developer Twin skill-set initialization | Implemented                                        |
+| Developer Twin frontend presentation    | Some mock/demo fallback logic may remain           |
+| Team Heatmap frontend                   | Some mock/demo presentation data may remain        |
+| Admin automatic module implementation   | Future enhancement                                 |
 
 ---
 
-32. Troubleshooting
+# 31. Important Project Files
 
-Backend Cannot Connect to Knowledge Engine
+| File                                                | Purpose                                  |
+| --------------------------------------------------- | ---------------------------------------- |
+| `README.md`                                         | Project overview and setup               |
+| `ai-integration/app/services/curriculum_service.py` | Curriculum generation                    |
+| `backend/app/routes/twin.py`                        | Developer Twin routes                    |
+| `backend/app/services/knowledge_engine.py`          | Backend ↔ Knowledge Engine communication |
+| `frontend/client/src/lib/devoraApi.ts`              | Frontend API layer                       |
+| `frontend/client/src/lib/devoraMockData.ts`         | Frontend mock/demo data                  |
+| `frontend/client/src/pages/Home.tsx`                | Main frontend page                       |
+| `knowledge-engine/app/generate_learning_path.py`    | Learning-path generation                 |
+| `knowledge-engine/app/ingest_api.py`                | Knowledge ingestion                      |
+| `knowledge-engine/app/module_quiz.py`               | Module quiz functionality                |
+
+---
+
+# 32. Troubleshooting
+
+## Backend Cannot Connect to Knowledge Engine
 
 Check:
 
+```env
 KNOWLEDGE_ENGINE_URL=http://127.0.0.1:8001
+```
 
-Ensure the Knowledge Engine is running on port "8001".
+Ensure the Knowledge Engine is running on port `8001`.
 
 ---
 
-Backend Cannot Connect to AI Integration
+## Backend Cannot Connect to AI Integration
 
 Check:
 
+```env
 AI_INTEGRATION_URL=http://127.0.0.1:8002
+```
 
-Ensure AI Integration is running on port "8002".
+Ensure AI Integration is running on port `8002`.
 
 ---
 
-Repository Analysis Fails
+## Repository Analysis Fails
 
 Check:
 
+```env
 REPOSITORY_PARSER_URL=http://127.0.0.1:8003
+```
 
-Ensure Repository Parser is running on port "8003".
+Ensure Repository Parser is running on port `8003`.
 
 Also verify that the submitted repository URL is accessible.
 
 ---
 
-Frontend Cannot Reach Backend
+## Frontend Cannot Reach Backend
 
 Check:
 
+```env
 VITE_DEVORA_API_URL=http://127.0.0.1:8000/api
+```
 
-Ensure the Backend API is running on port "8000".
+Ensure the Backend API is running on port `8000`.
 
 ---
 
-Bob Is Unavailable
+## Bob Is Unavailable
 
 Use mock mode:
 
+```env
 DEVORA_BOB_MODE=mock
+```
 
 This allows the system to operate without a live Bob API connection.
 
 ---
 
-MongoDB Connection Problems
+## MongoDB Connection Problems
 
 Verify:
 
+```env
 MONGODB_URI=<valid MongoDB Atlas connection string>
 MONGODB_DATABASE=devora
+```
 
 Also ensure the MongoDB Atlas deployment allows the machine's network connection.
 
 ---
 
-33. Master Technical Context
+# 33. Master Technical Context
 
-DEVORA is a five-service Python + TypeScript developer onboarding platform with an MCP server.
+DEVORA is a **five-service Python + TypeScript developer onboarding platform with an MCP server**.
 
 The architecture is:
 
+```text
 Frontend :3000
      ↓
 Backend :8000
@@ -1019,27 +1158,31 @@ Backend :8000
  ↓   ↓            ↓
 KE  AI          Parser
 8001 8002         8003
+```
 
 The frontend communicates only with the Backend.
 
 The Knowledge Engine uses:
 
+```text
 all-MiniLM-L6-v2
 384-dimensional embeddings
 MongoDB Atlas Vector Search
 Cosine similarity
+```
 
 DEVORA's knowledge sources include:
 
-- Project documentation
-- Project repository source code submitted by the Administrator
-- Uploaded project documents
-- Developer skill sets/resumes
-- Assessment results
-- Learning activity
+* Project documentation
+* Project repository source code submitted by the Administrator
+* Uploaded project documents
+* Developer skill sets/resumes
+* Assessment results
+* Learning activity
 
 The Developer Twin follows:
 
+```text
 Developer Skill Set / Resume
           ↓
 Profile Ingestion
@@ -1049,35 +1192,46 @@ Skill Extraction
 Initial Skill Profile
           ↓
 Developer Twin
+```
 
 The Twin can incorporate:
 
+```text
 Repository Intelligence
 Assessment Results
 Knowledge Gaps
 Learning Progress
+```
 
 The personalized learning path combines:
 
+```text
 Developer Skill Profile
 Developer Twin
 Repository Intelligence
 Project Knowledge
 Knowledge Gaps
+```
 
 IBM Bob provides:
 
+```text
 Grounded Q&A
 Assessment Evaluation
 Curriculum Generation
+```
 
 Bob supports:
 
+```env
 DEVORA_BOB_MODE=mock
+```
 
 for demonstration/development and:
 
+```env
 DEVORA_BOB_MODE=live
+```
 
 for live integration.
 
@@ -1087,8 +1241,9 @@ Mock/demo data remains present in selected frontend presentation areas where req
 
 ---
 
-34. Final System Flow
+# 34. Final System Flow
 
+```text
                          ADMIN
                            │
                            ▼
@@ -1139,5 +1294,6 @@ DEVELOPER ──► Skill Set / Resume
                                    │
                                    ▼
                            IBM Bob Assistance
-
+```
 DEVORA therefore combines project intelligence with developer intelligence to create a personalized, project-aware onboarding experience rather than providing a generic learning platform.
+DEVORA therefore combines **project intelligence** with **developer intelligence** to create a personalized, project-aware onboarding experience rather than providing a generic learning platform.
