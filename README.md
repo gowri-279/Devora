@@ -19,6 +19,7 @@ A developer can work with a project repository and supporting documents. DEVORA 
 DEVORA ingests project knowledge from:
 
 * GitHub repositories
+* Administrator-uploaded project/company documentation
 * PDF documents
 * DOCX documents
 * Markdown and text documents
@@ -109,7 +110,7 @@ Grounded Answer
 
 The Knowledge Engine retrieves relevant project context before the AI generates the answer.
 
-This allows DEVORA to provide **project-specific answers grounded in the available repository and documentation context**.
+This allows DEVORA to provide **project-specific answers grounded in the available repository and uploaded project/company documentation context**.
 
 ---
 
@@ -189,7 +190,7 @@ Example areas include:
 * Handling authorization issues
 * Troubleshooting differences between local and deployed environments
 
-The answers are evaluated using project-relevant context.
+The answers are evaluated using project-relevant context from the available project knowledge.
 
 The resulting evaluation can include:
 
@@ -365,52 +366,54 @@ through MCP for project knowledge retrieval.
 
 DEVORA consists of independently running application services plus an MCP server.
 
-                         Browser / User
-                              │
-                              │ HTTP :3000
-                              ▼
-                 ┌─────────────────────────┐
-                 │ Frontend                │
-                 │ React + Vite + TS       │
-                 │ :3000                   │
-                 └────────────┬────────────┘
-                              │
-                              │ REST /api/*
-                              ▼
-                 ┌─────────────────────────┐
-                 │ Backend API             │
-                 │ FastAPI + Python        │
-                 │ :8000                   │
-                 └──────┬──────────┬───────┘
-                        │          │
-                     :8001       :8003
-                        │          │
-                        ▼          ▼
-                ┌────────────┐ ┌───────────────┐
-                │ Knowledge  │ │ Repository    │
-                │ Engine     │ │ Parser        │
-                │ :8001      │ │ :8003         │
-                └─────┬──────┘ └───────────────┘
-                      │
-                      ▼
-                ┌────────────┐
-                │ MongoDB    │
-                │ Atlas      │
-                └─────┬──────┘
-                      │
-                      │ project context
-                      ▼
-                ┌───────────────┐
-                │ AI Integration│
-                │ :8002         │
-                └───────┬───────┘
-                        │
-                        │ Bob Shell CLI
-                        ▼
-                ┌────────────┐
-                │ IBM Bob    │
-                │ CLI / MCP  │
-                └────────────┘
+```
+                     Browser / User
+                          │
+                          │ HTTP :3000
+                          ▼
+             ┌─────────────────────────┐
+             │ Frontend                │
+             │ React + Vite + TS       │
+             │ :3000                   │
+             └────────────┬────────────┘
+                          │
+                          │ REST /api/*
+                          ▼
+             ┌─────────────────────────┐
+             │ Backend API             │
+             │ FastAPI + Python        │
+             │ :8000                   │
+             └──────┬──────────┬───────┘
+                    │          │
+                 :8001       :8003
+                    │          │
+                    ▼          ▼
+            ┌────────────┐ ┌───────────────┐
+            │ Knowledge  │ │ Repository    │
+            │ Engine     │ │ Parser        │
+            │ :8001      │ │ :8003         │
+            └─────┬──────┘ └───────────────┘
+                  │
+                  ▼
+            ┌────────────┐
+            │ MongoDB    │
+            │ Atlas      │
+            └─────┬──────┘
+                  │
+                  │ project context
+                  ▼
+            ┌───────────────┐
+            │ AI Integration│
+            │ :8002         │
+            └───────┬───────┘
+                    │
+                    │ Bob Shell CLI
+                    ▼
+            ┌────────────┐
+            │ IBM Bob    │
+            │ CLI / MCP  │
+            └────────────┘
+```
 
 ### Services
 
@@ -541,8 +544,6 @@ Project Knowledge
        ↓
 Grounded Learning Path
 ```
-
----
 
 ## Developer Onboarding
 
@@ -981,5 +982,3 @@ The goal is to help answer:
 Built with:
 
 **IBM Bob · MCP · FastAPI · React · MongoDB Atlas Vector Search · SentenceTransformers · Repository Intelligence**
-
----
