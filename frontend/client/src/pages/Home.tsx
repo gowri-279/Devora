@@ -458,8 +458,9 @@ export default function Home() {
       );
       if (!cancelled) {
         setGapNotifications((current) => {
-          const persisted = notificationResult.notifications.map(
-            (notification) => ({
+          const persisted = notificationResult.notifications
+            .filter((notification) => Boolean(notification.gap_id))
+            .map((notification) => ({
               id:
               notification.notification_id ??
               `${notification.gap_id}-${notification.created_at}`,
@@ -467,8 +468,7 @@ export default function Home() {
               question: notification.question ?? "",
               uploadedContext: "",
               text: notification.text,
-            }),
-          );
+            }));
           const existingIds = new Set(
             current.map((notification) => notification.id),
           );
@@ -967,6 +967,12 @@ export default function Home() {
                 });
 
                 navigate("notes");
+              }}
+              onNotePosted={(note) => {
+                setAdminNotes((current) => [
+                  note,
+                  ...current,
+                ]);
               }}
             />
           )}
@@ -1843,6 +1849,12 @@ function AdminDashboard({
   const isPlaceholderProject =
   activeProject === "Nimbus Portal" ||
   activeProject === "Pulse Mobile";
+  const pathCompletion = isPlaceholderProject
+  ? 0
+  : Math.round(
+      members.reduce((sum, member) => sum + member.progress, 0) /
+        members.length,
+    );
   return (
     <div className="admin-dashboard">
       <section className="admin-overview">
@@ -1888,7 +1900,7 @@ function AdminDashboard({
               PATH COMPLETION
             </span>
             <strong>
-              {isPlaceholderProject ? 0 : 41}
+              {pathCompletion}
             </strong>
             <small>{isPlaceholderProject ? "No activity yet" : "+8% this week"}</small>
           </div>
@@ -3341,6 +3353,7 @@ function NotesFeed({
   adminNotes = [],
   gapNotifications = [],
   onViewAnswer,
+  onNotePosted,
 }: {
   adminNotes?: Array<{
     initials: string;
@@ -3354,6 +3367,14 @@ function NotesFeed({
   onViewAnswer: (
     notification: GapNotification,
   ) => void;
+  onNotePosted?: (note: {
+    initials: string;
+    color: string;
+    name: string;
+    role: string;
+    time: string;
+    text: string;
+  }) => void;
 }) {
   const [showOnline, setShowOnline] =
     useState(false);
@@ -3499,14 +3520,38 @@ function NotesFeed({
 
             <button
               className="primary-cta"
-              onClick={() => {
-                if (noteText.trim()) {
-                  setNoteText("");
+              onClick={async () => {
+                const text = noteText.trim();
+
+                if (!text) {
+                  toast.error("Write a note before posting.");
+                  return;
                 }
 
-                toast.success(
-                  "Note ready to send once the API is connected.",
-                );
+                try {
+                  await createNotification({
+                    recipientId: "dev-001",
+                    role: "developer",
+                    text,
+                  });
+
+                  onNotePosted?.({
+                    initials: "AD",
+                    color: "#75E1C5",
+                    name: "Team Admin",
+                    role: "Team admin",
+                    time: new Date().toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }),
+                    text,
+                  });
+
+                  setNoteText("");
+                  toast.success("Note posted to the team.");
+                } catch {
+                  toast.error("Could not post the note.");
+                }
               }}
             >
               Post note <ArrowUpRight size={15} />
@@ -3569,10 +3614,32 @@ function Repository({
   projectId: string;
   onConnected: (learningPath: LearningPathResponse) => void;
 }) {
-  const [repoUrl, setRepoUrl] = useState(
-    "https://github.com/ctrlaltelite/atlas-core",
-  );
+  const [repoUrl, setRepoUrl] = useState("");
   const [connecting, setConnecting] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadRepository = async () => {
+      try {
+        const result = await getProjectRepository(projectId);
+
+        if (!cancelled) {
+          setRepoUrl(result.repo_url ?? "");
+        }
+      } catch {
+        if (!cancelled) {
+          setRepoUrl("");
+        }
+      }
+    };
+
+    void loadRepository();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
 
   const handleConnect = async () => {
     const url = repoUrl.trim();
@@ -4112,7 +4179,7 @@ function KnowledgeGapReview({
 
   const [gaps, setGaps] = useState<KnowledgeGap[]>([]);
   const [uploads, setUploads] = useState<
-    Record<string, string>
+    Record<string, File>
   >({});
   const [leaving, setLeaving] = useState<string | null>(
     null,
@@ -4187,10 +4254,10 @@ function KnowledgeGapReview({
     setLeaving(gap.gap_id);
 
     try {
+      await uploadDocument(projectId, upload);
       const result = await resolveKnowledgeGap(
         gap.gap_id,
       );
-
       if (!result.resolved) {
         throw new Error(
           "Knowledge gap could not be resolved.",
@@ -4218,7 +4285,7 @@ for (const developerId of developerIds) {
           gap.asked_by_developer_id,
         ),
         question: gap.query,
-        uploadedContext: upload,
+        uploadedContext: upload.name,
         text: "Knowledge gap fixed.",
       };
 
@@ -4393,8 +4460,7 @@ for (const developerId of developerIds) {
                               setUploads(
                                 (current) => ({
                                   ...current,
-                                  [item.gap_id]:
-                                    file.name,
+                                [item.gap_id]: file,
                                 }),
                               );
                             }
@@ -4404,7 +4470,7 @@ for (const developerId of developerIds) {
                         <Upload size={14} />
 
                         <strong>
-                          {uploads[item.gap_id] ??
+                          {uploads[item.gap_id]?.name ??
                             "Upload document"}
                         </strong>
 
