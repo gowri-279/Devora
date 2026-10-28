@@ -2,7 +2,7 @@
 
 > **AI-powered onboarding that understands your project, evaluates your knowledge, and builds a personalized learning path.**
 
-## 🚀 Overview
+## Overview
 
 **DEVORA** is an AI-powered developer onboarding and knowledge-transfer platform designed to help developers become productive faster when joining an unfamiliar software project.
 
@@ -12,9 +12,9 @@ A developer can work with a project repository and supporting documents. DEVORA 
 
 ---
 
-# ✨ Key Features
+# Key Features
 
-## 🧠 Project-Aware Knowledge Engine
+## Project-Aware Knowledge Engine
 
 DEVORA ingests project knowledge from:
 
@@ -31,7 +31,7 @@ This enables semantic retrieval of relevant project-specific context instead of 
 
 ---
 
-## 🔍 Repository Intelligence
+## Repository Intelligence
 
 DEVORA analyzes the actual repository to identify:
 
@@ -48,7 +48,7 @@ This repository intelligence becomes part of the foundation for generating the d
 
 ---
 
-## 🗺️ Grounded Personalized Learning Paths
+## Grounded Personalized Learning Paths
 
 DEVORA combines:
 
@@ -88,7 +88,7 @@ Project Repository + Documentation
 
 ---
 
-# 🤖 Ask DEVORA
+# Ask DEVORA
 
 Developers can ask questions about their project through the DEVORA AI assistant.
 
@@ -114,7 +114,7 @@ This allows DEVORA to provide **project-specific answers grounded in the availab
 
 ---
 
-# 📄 Resume → Developer Twin
+# Resume → Developer Twin
 
 DEVORA can use a developer's resume/profile as an initial source of skill signals.
 
@@ -141,7 +141,7 @@ As the developer progresses through onboarding and completes assessments, the De
 
 ---
 
-# 🧬 Developer Twin
+# Developer Twin
 
 DEVORA maintains a dynamic technical profile for each developer.
 
@@ -176,7 +176,7 @@ Resume / Initial Profile
 
 ---
 
-# 📝 AI-Powered Assessments
+# AI-Powered Assessments
 
 DEVORA evaluates a developer's understanding through a **five-question assessment** covering practical project-related scenarios.
 
@@ -204,7 +204,7 @@ Assessment results are used to update the Developer Twin.
 
 ---
 
-# 📊 Admin Team Heatmap
+# Admin Team Heatmap
 
 Administrators can view developer skill signals through a team-level heatmap.
 
@@ -219,7 +219,7 @@ This allows onboarding progress to be viewed at both the **individual** and **te
 
 ---
 
-# 🔎 Knowledge Gap Detection
+# Knowledge Gap Detection
 
 DEVORA tracks knowledge gaps that emerge when project information is missing or when developers require additional project-specific context.
 
@@ -252,7 +252,7 @@ Developer Notification
 
 ---
 
-# 🤖 IBM Bob Integration
+# IBM Bob Integration
 
 IBM Bob provides the AI intelligence used across key DEVORA workflows.
 
@@ -288,7 +288,7 @@ for the complete integration details.
 
 ---
 
-# 🔮 Bob Recommendation — Planned Next Phase
+# Bob Recommendation — Planned Next Phase
 
 DEVORA's architecture is designed to support continuous personalization through IBM Bob.
 
@@ -306,7 +306,7 @@ This extends DEVORA from a one-time onboarding path toward **continuous project-
 
 ---
 
-# 🔌 MCP Integration
+# MCP Integration
 
 DEVORA also exposes project knowledge to IBM Bob through an **MCP server**.
 
@@ -362,7 +362,7 @@ through MCP for project knowledge retrieval.
 
 ---
 
-# 🏗️ System Architecture
+# System Architecture
 
 DEVORA consists of independently running application services plus an MCP server.
 
@@ -429,7 +429,7 @@ The frontend communicates with the **Backend API**, which coordinates the projec
 
 ---
 
-# 🛠️ Technology Stack
+# Technology Stack
 
 | Layer               | Technology                  |
 | ------------------- | --------------------------- |
@@ -457,7 +457,7 @@ The frontend communicates with the **Backend API**, which coordinates the projec
 
 ---
 
-# 📁 Project Structure
+# Project Structure
 
 ```text
 Devora/
@@ -521,7 +521,7 @@ Devora/
 
 ---
 
-# 🔄 End-to-End Workflows
+# End-to-End Workflows
 
 ## Repository Onboarding
 
@@ -637,7 +637,7 @@ Developer Notification
 
 ---
 
-# 🔌 Backend API
+# Backend API
 
 The main Backend API runs on port `8000`.
 
@@ -668,7 +668,7 @@ The main Backend API runs on port `8000`.
 
 ---
 
-# 🧠 Knowledge Engine
+# Knowledge Engine
 
 The Knowledge Engine runs on port `8001`.
 
@@ -715,7 +715,7 @@ using cosine similarity.
 
 ---
 
-# 🗄️ MongoDB
+# MongoDB
 
 DEVORA uses **MongoDB Atlas**.
 
@@ -738,7 +738,7 @@ DEVORA uses **MongoDB Atlas**.
 
 ---
 
-# ⚙️ Setup
+# Setup
 
 ## Prerequisites
 
@@ -793,7 +793,7 @@ DEVORA_BOB_MODE=mock
 
 ---
 
-# ▶️ Running DEVORA
+# Running DEVORA
 
 Run the required services in separate terminals.
 
@@ -863,7 +863,7 @@ http://localhost:3000
 
 ---
 
-# 🔌 MCP Setup
+# MCP Setup
 
 The DEVORA MCP server is located at:
 
@@ -889,7 +889,7 @@ which allows IBM Bob to retrieve relevant project knowledge.
 
 ---
 
-# 📚 Documentation
+# Documentation
 
 Additional technical documentation is available in:
 
@@ -923,7 +923,7 @@ Contains:
 
 ---
 
-# 🎯 The DEVORA Approach
+# The DEVORA Approach
 
 ### Traditional Developer Onboarding
 
@@ -973,7 +973,7 @@ The goal is to help answer:
 
 ---
 
-# 👥 Team
+# Team
 
 ## CtrlAltElite
 
